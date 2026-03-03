@@ -22,7 +22,7 @@ import { emailVerifySchema } from "@/schemas/auth.schema";
 import { AuthService } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Loader2, MoveLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -99,7 +99,7 @@ export default () => {
                 <Button type="button" variant={"secondary"} className="shrink-0"
                   onClick={() => router.back()}
                 >
-                  <MoveLeft  className="opacity-50"/>
+                  <ChevronLeft  className="opacity-50"/>
                 </Button>
                 <div className="flex-1 min-w-0">
                   <Button

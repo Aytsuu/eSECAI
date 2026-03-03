@@ -2,6 +2,7 @@ using Skwela.Application.Interfaces;
 using Skwela.Domain.Enums;
 using Skwela.Domain.Entities;
 using Skwela.Domain.Exceptions;
+using System.Text.Json;
 
 namespace Skwela.Application.UseCases.Auth;
 
@@ -16,6 +17,7 @@ public class GetUserUseCase
     private readonly IClassroomRepository _classroomRepository;
     private readonly IEnrollmentRepository _enrollmentRepository;
     private readonly VerifyUserUseCase _verifyUseCase;
+    private readonly IRedisCacheService _redisCache;
 
     /// <summary>
     /// Initializes the GetUserUseCase with required repositories and services
@@ -29,7 +31,8 @@ public class GetUserUseCase
         IAuthService authService,
         IClassroomRepository classroomRepository,
         IEnrollmentRepository enrollmentRepository,
-        VerifyUserUseCase verifyUseCase
+        VerifyUserUseCase verifyUseCase,
+        IRedisCacheService redisCache
     )
     {
         _authRepository = authRepository;
@@ -37,6 +40,7 @@ public class GetUserUseCase
         _classroomRepository = classroomRepository;
         _enrollmentRepository = enrollmentRepository;
         _verifyUseCase = verifyUseCase;
+        _redisCache = redisCache;
     }
 
     /// <summary>
@@ -48,9 +52,13 @@ public class GetUserUseCase
     /// <exception cref="UnauthorizedAccessException">Thrown if credentials are invalid</exception>
     public async Task<AuthResponse> ExecuteLoginAsync(LoginRequest request)
     {
-        // Validate credentials and retrieve user from database
         var user = await _authRepository.LoginAsync(request.email, request.password);
+        
+        // Store to redis cache for faster retrieval
+        var cacheKey = $"auth:user:{request.email}";
+        await _redisCache.SaveRedisCacheAsync(cacheKey, user, TimeSpan.FromHours(1));
 
+        // Check if email is verified
         if (!user.is_email_verified)
         {
             await _verifyUseCase.ExecuteSendOtp(request.email);
@@ -108,14 +116,35 @@ public class GetUserUseCase
     /// <returns>The complete data of current user</returns>
     public async Task<User> ExecuteGetCurrentUser(string email)
     {
+        var cacheKey = $"auth:user:{email}";
+        var userCache = await _redisCache.GetRedisCacheAsync(cacheKey); 
+        
+        if (userCache != null)
+        {
+            var cachedUser = JsonSerializer.Deserialize<User>(userCache);
+            
+            // JsonSerializer can technically return null, so we satisfy the compiler here
+            if (cachedUser != null) 
+            {
+                if (!cachedUser.is_email_verified) 
+                    throw new EmailNotVerifiedException("Email verification is required");
+                    
+                return cachedUser; 
+            }
+        }
+
+        // Cache Miss! Fetch from PostgreSQL.
         var user = await _authRepository.CurrentUserAsync(null, email);
 
+        // 3. Apply Business Rules
         if (!user.is_email_verified)
         {
             throw new EmailNotVerifiedException("Email verification is required");
         }
 
-        // Return data
+        // Save to redis for faster response
+        await _redisCache.SaveRedisCacheAsync(cacheKey, JsonSerializer.Serialize(user), TimeSpan.FromHours(1));
+
         return user;
     }
 }

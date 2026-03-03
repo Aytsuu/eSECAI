@@ -122,7 +122,7 @@ public static class DependencyInjection
         services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<IRedisCacheService, RedisOtpCacheService>();
+        services.AddScoped<IRedisCacheService, RedisCacheService>();
 
         return services;
     }

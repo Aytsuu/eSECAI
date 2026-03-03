@@ -32,27 +32,30 @@ public class VerifyUserUseCase
     public async Task<AuthResponse> ExecuteVerifyEmail(string email, string otpCode)
     {
         // Get the cached otp
-        var cachedOtp = await _redisCache.GetOtpAsync(email);
+        var cacheKey = $"email_otp:{email.ToLower()}"; 
+        var cachedOtp = await _redisCache.GetRedisCacheAsync(cacheKey);
         
         if (cachedOtp == null) // Throw invalid exception if otp is expired
         {
-        throw new InvalidDataException("Code has expired");
+            throw new InvalidDataException("Code has expired");
         }
 
         if (cachedOtp != otpCode) // Throw invalid exception if otp doesn't match
         {
-        throw new InvalidDataException("Invalid OTP");
+            throw new InvalidDataException("Invalid OTP");
         }
         
-        // Get user data
+        // Get user data and store to redis cache
         var user = await _authRepository.CurrentUserAsync(null, email);
+        cacheKey = $"auth:user:{email}";
+        await _redisCache.SaveRedisCacheAsync(cacheKey, user, TimeSpan.FromHours(1));
 
         // Update user is_email_verified to true
         user.is_email_verified = true;
         await _authRepository.UpdateUserAsync();
 
         // Remove OTP from redis cache
-        await _redisCache.DeleteOtpAsync(email);
+        await _redisCache.DeleteRedisCacheAsync(cacheKey);
 
         return new AuthResponse(
         _authService.GenerateJwtToken(user),
@@ -86,7 +89,7 @@ public class VerifyUserUseCase
         var otpCode = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
 
         // Store to Redis with a 5-minutes TTL (Time-To-Live)
-        await _redisCache.SaveOtpAsync(email, otpCode, TimeSpan.FromMinutes(5));
+        await _redisCache.SaveRedisCacheAsync(email, otpCode, TimeSpan.FromMinutes(5));
 
         // Send OTP to email via SmtpServer
         await _emailService.SendOtpEmailAsync(email, otpCode);

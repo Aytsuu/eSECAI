@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims; 
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 
 namespace Skwela.API.Controllers;
@@ -87,7 +88,8 @@ public class AuthController : ControllerBase
     /// <response code="200">User successfully authenticated</response>
     /// <response code="401">Invalid credentials provided</response>
     /// /// <response code="404">User not found</response>
-    [HttpPost("login")]
+    [HttpPost("login")] 
+    [EnableRateLimiting("AuthPolicy")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
         try
@@ -126,6 +128,7 @@ public class AuthController : ControllerBase
     /// <response code="200">User account successfully created</response>
     /// <response code="400">Invalid signup data provided</response>
     [HttpPost("signup")]
+    [EnableRateLimiting("AuthPolicy")]
     public async Task<IActionResult> Signup(SignupRequest request)
     {   
         try
@@ -155,6 +158,7 @@ public class AuthController : ControllerBase
     /// <response code="200">OTP code resend successfully</response>
     /// <response code="400">Failed to resend OTP</response>
     [HttpPost("resend-otp")]
+    [EnableRateLimiting("OtpPolicy")]
     public async Task<IActionResult> ResendOtp(ResendOtpRequest request) 
     {
         try 
@@ -264,6 +268,7 @@ public class AuthController : ControllerBase
     /// <response code="200">Email is registered</response>
     /// <response code="404">Email not found</response>
     [HttpGet("{email}/validate")]
+    [EnableRateLimiting("AuthPolicy")]
     public async Task<IActionResult> ValidateEmail(string email)
     {
         try

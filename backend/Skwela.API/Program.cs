@@ -4,6 +4,12 @@ using Skwela.Application;
 using Skwela.Infrastructure.Data;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using System.Text.Json;
+using System.Collections.Concurrent;
 
 /// <summary>
 /// Skwela API Application Entry Point
@@ -66,6 +72,69 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Rate Limiting
+var policyWindows = new Dictionary<string, TimeSpan>
+{
+    { "AuthPolicy", TimeSpan.FromMinutes(3) },
+    { "OtpPolicy",  TimeSpan.FromMinutes(3) }
+};
+
+// Track the reset time per policy
+var policyResetTimes = new ConcurrentDictionary<string, DateTimeOffset>();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
+
+        var endpoint = context.HttpContext.GetEndpoint();
+        var policyName = endpoint?.Metadata
+            .GetMetadata<EnableRateLimitingAttribute>()?.PolicyName
+            ?? "AuthPolicy";
+
+        var window = policyWindows.GetValueOrDefault(policyName, TimeSpan.FromMinutes(3));
+        var now = DateTimeOffset.UtcNow;
+
+        // Get or initialize the reset time for this policy
+        var resetTime = policyResetTimes.AddOrUpdate(
+            policyName,
+            // First time seeing this policy — reset is one full window from now
+            addValue: now.Add(window),
+            // Already tracked — if reset has passed, roll it forward
+            updateValueFactory: (_, existingReset) =>
+                existingReset > now
+                    ? existingReset           // window still active, keep it
+                    : now.Add(window)         // window expired, start a new one
+        );
+
+        var secondsRemaining = Math.Max(0, Math.Round((resetTime - now).TotalSeconds));
+
+        context.HttpContext.Response.Headers.RetryAfter = secondsRemaining.ToString();
+
+        await context.HttpContext.Response.WriteAsync(
+            $"Too many requests. Please wait {secondsRemaining} seconds before trying again.",
+            token);
+    };
+
+    options.AddFixedWindowLimiter("AuthPolicy", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 4;
+        limiterOptions.Window = policyWindows["AuthPolicy"]; // ✅ single source of truth
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+    });
+
+    options.AddFixedWindowLimiter("OtpPolicy", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 1;
+        limiterOptions.Window = policyWindows["OtpPolicy"]; // ✅ single source of truth
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+    });
+});
+
 // Build the web application
 var app = builder.Build();
 
@@ -111,6 +180,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure additional middleware
+app.UseRateLimiter(); // Handle rate limiting
 app.UseForwardedHeaders(); // Handle forwarded headers for proxy scenarios
 app.UseAuthentication(); // Enable JWT/Cookie authentication
 app.UseAuthorization(); // Enable authorization checks

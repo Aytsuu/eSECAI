@@ -69,7 +69,6 @@ export default () => {
       if (axios.isAxiosError(err)) {
         const status = err.response?.status;
         const errorData = err.response?.data;
-        console.log(errorData)
         if (status === 403) {
           // Store the email temporarily to cookie for OTP verification
           const inFiveMinutes = new Date(new Date().getTime() + 5 * 60 * 1000);
