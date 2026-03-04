@@ -3,10 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Provider from "./queryClientProvider";
 import { AuthProvider } from "../components/context/AuthContext";
-import { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/wrapper/theme-provider";
-
-const queryClient = new QueryClient();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Skwela",
+  title: "eSECAI - Activity Checker",
   description: "",
 };
 

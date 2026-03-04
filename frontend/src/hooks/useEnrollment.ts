@@ -17,12 +17,12 @@ export const useCreateEnrollment = () => {
   })
 }
 
-export const useGetEnrolledClasses = (userId: string, role: string) => {
+export const useGetEnrolledClasses = (userId: string) => {
   return useQuery({
     queryKey: ['studentEnrolledClasses', userId],
     queryFn: () => EnrollmentService.getEnrolledClasses(userId),
     staleTime: 5000,
-    enabled: !!userId && role === 'student',
+    enabled: !!userId,
     retry: false
   })
 }

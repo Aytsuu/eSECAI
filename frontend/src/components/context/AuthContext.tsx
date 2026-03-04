@@ -40,8 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({
           userId: me.userId,
           email: me.email,
-          displayName: me.displayName,
-          role: me.role,
+          displayName: me.displayName
         });
       } catch (err) {
         setUser(null)

@@ -14,15 +14,13 @@ export default () => {
       const userId = urlParams.get('userId');
       const email = urlParams.get('email');
       const displayName = urlParams.get('displayName');
-      const role = urlParams.get('role');
 
-      if (userId && email && displayName && role) {
+      if (userId && email && displayName) {
           // Set user profile
         storeUser({
           userId: userId,
           email: email,
-          displayName: displayName,
-          role: role
+          displayName: displayName
         });
 
         router.replace('/dashboard');

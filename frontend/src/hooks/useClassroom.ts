@@ -18,20 +18,20 @@ export const useCreateClassroom = () => {
   })
 }
 
-export const useGetClassroomsByUserId = (userId: string, role: string) => {
+export const useGetClassroomsByUserId = (userId: string) => {
   return useQuery({
     queryKey: ['classroomsByUserId', userId],
     queryFn: () => ClassroomService.getByUserId(userId),
     staleTime: 5000,
-    enabled: !!userId && role === 'teacher',
+    enabled: !!userId,
     retry: false
   })
 }
 
-export const useGetClassroomData = (classId: string, userId: string, role: string) => {
+export const useGetClassroomData = (classId: string, userId: string) => {
   return useQuery({
     queryKey: ['classroomData', classId, userId],
-    queryFn: () => ClassroomService.getData(classId, userId, role),
+    queryFn: () => ClassroomService.getData(classId, userId),
     staleTime: 5000,
     enabled: !!classId && !!userId
   })

@@ -14,5 +14,4 @@ export interface UserProfile {
   email: string;
   displayName: string;
   displayImage?: string;
-  role: string;
 }

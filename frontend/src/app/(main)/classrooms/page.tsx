@@ -43,8 +43,8 @@ export default () => {
 
   const { mutateAsync: createClassroom } = useCreateClassroom();
   const { mutateAsync: createEnrollment } = useCreateEnrollment();
-  const { data: classroomsByUserId } = useGetClassroomsByUserId(user?.userId, user?.role);
-  const { data: enrollmentsByUserId } = useGetEnrolledClasses(user?.userId, user?.role);
+  const { data: classroomsByUserId } = useGetClassroomsByUserId(user?.userId);
+  const { data: enrollmentsByUserId } = useGetEnrolledClasses(user?.userId);
 
   // Effects
   useEffect(() => {
@@ -83,132 +83,11 @@ export default () => {
     }
   }
 
-  const showDialog = () => {
-    user?.role === 'teacher' ?
-      setIsOpenCreateClassroom(true) :
-      setIsOpenEnrollClass(true);
-  }
-
-  // Render Helpers
-  const createDialog = (
-    <Dialog open={isOpenCreateClassroom} onOpenChange={() => setIsOpenCreateClassroom(prev => !prev)}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Classroom</DialogTitle>
-          <DialogDescription>Start a new classroom and invite your students</DialogDescription>
-        </DialogHeader>
-        <div className="">
-          <Form {...createClassroomForm}>
-            <form>
-              <FormField
-                control={createClassroomForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel></FormLabel>
-                    <FormControl>
-                      <Input placeholder="Class Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={createClassroomForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel></FormLabel>
-                    <FormControl>
-                      <Input placeholder="Class Description" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleCreateClassroom}>
-            Create Classroom
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-
-  const enrollDialog = (
-    <Dialog open={isOpenEnrollClass} onOpenChange={() => setIsOpenEnrollClass(prev => !prev)}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Classroom</DialogTitle>
-          <DialogDescription>Join a class, learn and connect with other students.</DialogDescription>
-        </DialogHeader>
-        <div className="">
-          <Form {...enrollClassForm}>
-            <form>
-              <FormField
-                control={enrollClassForm.control}
-                name="classId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel></FormLabel>
-                    <FormControl>
-                      <Input placeholder="Class ID" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </div>
-        <DialogFooter>
-          <Button onClick={handleEnrollClass}>
-            Join Class
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-
   if (!isMounted) return null;
 
   return (
     <>
-      {/* Dialog Render  */}
-      {createDialog}
-      {enrollDialog}
 
-      {/* Main Render  */}
-      <div>
-        <div className="flex flex-wrap">
-        
-          <div className=" w-50 h-50 border border-black flex items-center justify-center cursor-pointer"
-            onClick={showDialog}
-          >
-            <Plus />
-          </div>
-
-          {user?.role == 'teacher' && classroomsByUserId?.map((classroom: ClassroomResponse) => (
-            <Link href={`/classrooms/${classroom.class_id}`} className="w-50 h-50 border border-black" key={classroom.class_id}>
-              {classroom.class_name}
-              {classroom.class_description}
-              {classroom.class_created_at}
-            </Link>
-          ))}
-
-          {user?.role == 'student' && enrollmentsByUserId?.map((enrollment: any) => (
-            <Link href={`/classrooms/${enrollment.class_id}`} className="w-50 h-50 border border-black" key={enrollment.class_id}>
-              {enrollment.class_name}
-              {enrollment.class_description}
-              {enrollment.enrolled_at}
-            </Link>
-          ))}
-        </div>
-      </div>
     </>
   )
 }

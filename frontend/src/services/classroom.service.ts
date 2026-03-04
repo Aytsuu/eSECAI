@@ -19,9 +19,9 @@ export const ClassroomService = {
       throw err;
     }
   },
-  getData: async (classId: string, userId: string, role: string) => {
+  getData: async (classId: string, userId: string) => {
     try {
-      const res = await api.get<ClassroomResponse>(`api/classroom/get/${classId}/${userId}/${role}`);
+      const res = await api.get<ClassroomResponse>(`api/classroom/get/${classId}/${userId}`);
       return res.data;
     } catch (err) {
       throw err;
