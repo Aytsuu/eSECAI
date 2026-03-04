@@ -1,34 +1,34 @@
 services:
-  skwela-cache:
+  esecai-cache:
     image: redis:7-alpine
     command: redis-server
     ports:
       - "6379:6379"
     networks:
-      - skwela-net
+      - esecai-net
     volumes:
       - redis_data:/data
 
-  # skwela-api:
+  # esecai-api:
   #   build:
   #     dockerfile: Dockerfile
-  #   container_name: skwela-api
+  #   container_name: esecai-api
   #   depends_on:
-  #     - skwela-db
+  #     - esecai-db
   #   networks:
-  #     - skwela-net
+  #     - esecai-net
   #   env_file:
   #   - ./.env
 
-  skwela-db:
+  esecai-db:
     image: postgres:17-alpine
-    container_name: skwela-db
+    container_name: esecai-db
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - skwela-net
+      - esecai-net
     env_file:
     - ./.env
 
@@ -38,12 +38,12 @@ services:
     restart: unless-stopped
     command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN}
     networks:
-      - skwela-net
+      - esecai-net
     env_file:
     - ./.env
 
 networks:
-  skwela-net:
+  esecai-net:
     driver: bridge
 
 volumes:
