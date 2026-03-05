@@ -1,3 +1,5 @@
+> This is a personal project
+
 # 🎓 eSECAI - Electronic Student Engagement Checker Powered by AI
 
 <div align="center">
