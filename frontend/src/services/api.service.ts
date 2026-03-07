@@ -31,7 +31,6 @@ api.interceptors.response.use(
 
       } catch (refreshError) {
         AuthService.logout();
-        window.location.href = '/authentication/login';
         return Promise.reject(refreshError);
       }
     }

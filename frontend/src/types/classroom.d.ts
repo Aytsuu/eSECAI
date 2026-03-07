@@ -1,14 +1,26 @@
+import { UserProfile } from "./auth";
+
 export interface ClassroomCreateRequest {
   name: string;
   description: string;
   userId: string;
 }
 
-export interface ClassroomResponse {
-  class_id: string;
-  class_name: string;
-  class_description: string;
-  class_created_at: string;
-  creator_name: string;
-  creator_image: string;
+export interface ClassroomData {
+  classId: string;
+  className: string;
+  classDescription: string;
+  classCreatedAt: string;
+  classBanner: string;
+  creator?: UserProfile;
+  enrolled_users: UserProfile[]
+  posts?: Post[] 
+}
+
+interface Post {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: UserProfile;
+  isPinned?: boolean;
 }

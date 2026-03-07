@@ -1,8 +1,9 @@
 "use client";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function Protected({children, error} : {children: React.ReactNode; error: any}) {
   const router = useRouter();
@@ -10,7 +11,10 @@ export default function Protected({children, error} : {children: React.ReactNode
   useEffect(() => {
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
-      if (status === 404) router.replace("/404/not-found")
+      if (status === 404) {
+        toast.error("Page not found");
+        return router.replace("/dashboard");
+      }
     }
   }, [error])
 

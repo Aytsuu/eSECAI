@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/components/context/AuthContext";
 
@@ -10,17 +10,19 @@ export default () => {
 
   useEffect(() => {
     // Read the URL parameters
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = useSearchParams();
       const userId = urlParams.get('userId');
       const email = urlParams.get('email');
       const displayName = urlParams.get('displayName');
+      const displayImage = urlParams.get('displayImage');
 
-      if (userId && email && displayName) {
+      if (userId && email && displayName && displayImage) {
           // Set user profile
         storeUser({
           userId: userId,
           email: email,
-          displayName: displayName
+          displayName: displayName,
+          displayImage: displayImage
         });
 
         router.replace('/dashboard');

@@ -4,6 +4,8 @@ import "./globals.css";
 import Provider from "./queryClientProvider";
 import { AuthProvider } from "../components/context/AuthContext";
 import { ThemeProvider } from "@/components/wrapper/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "eSECAI - Activity Checker",
+  title: "eSECAI - AI Activity Checker",
   description: "",
 };
 
@@ -31,9 +33,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute={"class"} defaultTheme="dark">
-          <Provider>
-            <AuthProvider>{children}</AuthProvider>
-          </Provider>
+          <TooltipProvider>
+            <Provider>
+              <AuthProvider>{children}</AuthProvider>
+            </Provider>
+          </TooltipProvider>
+          <Toaster/>
         </ThemeProvider>
       </body>
     </html>

@@ -1,19 +1,22 @@
-import { AxiosError } from "axios";
-import { ClassroomCreateRequest, ClassroomResponse } from "../types/classroom";
+import { ClassroomData } from "../types/classroom";
 import { api } from "./api.service";
 
 export const ClassroomService = {
-  create: async (data: ClassroomCreateRequest) => {
+  create: async (data: FormData) => {
     try {
-      const res = await api.post('api/classroom/create', data);
+      const res = await api.post('api/classroom/create', data, {
+        headers: {
+          "Content-Type" : "multipart/form-data"
+        }
+      });
       return res.data;
     } catch (err) {
       throw err;
     }
   },
-  getByUserId: async (userId: string) => {
+  getByCreator: async (userId: string) => {
     try {
-      const res = await api.get(`api/classroom/get/${userId}`)
+      const res = await api.get<ClassroomData[]>(`api/classroom/get/creator-${userId}`)
       return res.data;
     } catch (err) {
       throw err;
@@ -21,7 +24,7 @@ export const ClassroomService = {
   },
   getData: async (classId: string, userId: string) => {
     try {
-      const res = await api.get<ClassroomResponse>(`api/classroom/get/${classId}/${userId}`);
+      const res = await api.get<ClassroomData>(`api/classroom/get/${classId}/${userId}`);
       return res.data;
     } catch (err) {
       throw err;
@@ -30,6 +33,18 @@ export const ClassroomService = {
   delete: async (classId: string) => {
     try {
       const res = await api.delete(`api/classroom/delete/${classId}`);
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  },
+  update: async (classId: string, data: FormData) => {
+    try {
+      const res = await api.patch(`api/classroom/patch/${classId}`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
       return res.data;
     } catch (err) {
       throw err;

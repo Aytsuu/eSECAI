@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClassroomService } from "../services/classroom.service";
-import { ClassroomResponse } from "../types/classroom";
+import { ClassroomData } from "../types/classroom";
 import { useAuth } from "../components/context/AuthContext";
 
 export const useCreateClassroom = () => {
@@ -8,34 +8,36 @@ export const useCreateClassroom = () => {
   const { user } = useAuth();
   return useMutation({
     mutationFn: ClassroomService.create,
-    onSuccess: (data: ClassroomResponse) => {
-      queryClient.invalidateQueries({ queryKey: ['classroomsByUserId'] });
-      queryClient.setQueryData(['classroomById', user.userId], (old: ClassroomResponse[] = []) => [
-        ...old,
-        data
-      ]);
-    }
-  })
-}
+    onSuccess: (data: ClassroomData) => {
+      queryClient.setQueryData(
+        ["classroomsByCreator", user.userId],
+        (old: ClassroomData[] = []) => [...old, data],
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["classroomsByCreator", user.userId],
+      });
+    },
+  });
+};
 
-export const useGetClassroomsByUserId = (userId: string) => {
+export const useGetClassroomsByCreator = (userId: string) => {
   return useQuery({
-    queryKey: ['classroomsByUserId', userId],
-    queryFn: () => ClassroomService.getByUserId(userId),
+    queryKey: ["classroomsByCreator", userId],
+    queryFn: () => ClassroomService.getByCreator(userId),
     staleTime: 5000,
     enabled: !!userId,
-    retry: false
-  })
-}
+    retry: false,
+  });
+};
 
 export const useGetClassroomData = (classId: string, userId: string) => {
   return useQuery({
-    queryKey: ['classroomData', classId, userId],
+    queryKey: ["classroomData", classId, userId],
     queryFn: () => ClassroomService.getData(classId, userId),
     staleTime: 5000,
-    enabled: !!classId && !!userId
-  })
-}
+    enabled: !!classId && !!userId,
+  });
+};
 
 export const useDeleteClassroom = () => {
   const queryClient = useQueryClient();
@@ -43,10 +45,31 @@ export const useDeleteClassroom = () => {
   return useMutation({
     mutationFn: ClassroomService.delete,
     onSuccess: (_, classId) => {
-      queryClient.invalidateQueries({ queryKey: ['classroomsByUserId', user.userId]});
-      queryClient.setQueryData(['classroomsByUserId', user.userId], (old: ClassroomResponse[] = []) => 
-        old.filter((prev) => prev.class_id !== classId)
+      queryClient.setQueryData(
+        ["classroomsByCreator", user.userId],
+        (old: ClassroomData[]) =>
+          old.filter((prev) => prev.classId !== classId),
       );
+      
+      queryClient.invalidateQueries({
+        queryKey: ["classroomsByCreator", user.userId],
+      });
+    },
+  });
+};
+
+export const useUpdateClassroom = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: ({ classId, data }: { classId: string; data: FormData }) =>
+      ClassroomService.update(classId, data),
+    onSuccess: (data: ClassroomData, variables) => {
+      const { classId } = variables;
+      queryClient.setQueryData(["classroomData", classId, user.userId], (old: ClassroomData) => ({
+        ...old,
+        ...data
+      }));
     }
-  })
-}
+  });
+};

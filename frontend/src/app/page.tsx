@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function RootPage() {
   return (
       <div className="flex justify-between a items-center mx-auto max-w-5xl py-6">
-        <span className="font-bold">Skwela</span>
+        <span className="font-bold">eSECAI</span>
         <ul className="flex gap-6">
           <Link href={"#"}>Home</Link>
           <Link href={"#"}>Services</Link>
@@ -18,7 +18,7 @@ export default function RootPage() {
         <div className="flex items-center gap-4">
           <span 
             onClick={() => {
-              window.open("https://github.com/Aytsuu/Skwela", "_blank")
+              window.open("https://github.com/Aytsuu/eSECAI", "_blank")
             }}
             className="cursor-pointer"
           >
@@ -26,7 +26,7 @@ export default function RootPage() {
           </span>
           <Link href="authentication/login">
             <Button className="rounded-full cursor-pointer">
-            Start Learning
+            Start Classes
           </Button>
           </Link>
         </div>
