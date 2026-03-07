@@ -1,4 +1,19 @@
 services:
+  # Image for MinIO storage
+  esecai-storage:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    ports: 
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - ./.env
+    networks:
+      - esecai-net
+    volumes: 
+      - minio_data:/data
+
+  # Image for redis cache
   esecai-cache:
     image: redis:7-alpine
     command: redis-server
@@ -9,6 +24,7 @@ services:
     volumes:
       - redis_data:/data
 
+  # Image for backend server
   # esecai-api:
   #   build:
   #     dockerfile: Dockerfile
@@ -20,6 +36,7 @@ services:
   #   env_file:
   #   - ./.env
 
+  # Image for PostgreSQL DB
   esecai-db:
     image: postgres:17-alpine
     container_name: esecai-db
@@ -32,7 +49,8 @@ services:
     env_file:
     - ./.env
 
-  tunnel:
+  # Image cloudflare tunnel
+  esecai-tunnel:
     image: cloudflare/cloudflared:latest
     container_name: cloudflare-tunnel
     restart: unless-stopped
@@ -49,3 +67,4 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  minio_data:
