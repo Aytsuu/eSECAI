@@ -61,8 +61,7 @@ builder.Services.AddCors(options =>
     {
         // Allow requests from specified frontend origins
         policy.WithOrigins(
-            // "https://skwela.paoloaraneta.dev",
-            // "http://skwela.local:3000",
+            // "https://esecai.paoloaraneta.dev",
             "http://127.0.0.1:3000",
             "http://localhost:3000"
         )

@@ -16,6 +16,7 @@ public class ClassroomRepository : IClassroomRepository
 {
     private readonly AppDbContext _context;
     private readonly ILogger<ClassroomRepository> _logger;
+    private readonly MinioFileService _minioFileService;
 
     /// <summary>
     /// Initializes the ClassroomRepository with database context and logger
@@ -47,10 +48,11 @@ public class ClassroomRepository : IClassroomRepository
     /// </summary>
     /// <param name="userId">The ID of the teacher who created the classrooms</param>
     /// <returns>Collection of Classroom entities created by the user</returns>
-    public async Task<IEnumerable<Classroom>> GetClassroomsByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<Classroom>> GetClassroomsByCreatorAsync(Guid userId)
     {
-        // Query classrooms where teacher is the owner
+        // Query classrooms by creator user_id
         return await _context.Classrooms
+            .Include(c => c.user)
             .Where(c => c.user_id == userId)
             .ToListAsync();
     }
@@ -59,13 +61,11 @@ public class ClassroomRepository : IClassroomRepository
     /// Retrieves detailed classroom information with authorization checks
     /// </summary>
     /// <param name="classId">The ID of the classroom to retrieve</param>
-    /// <param name="userId">The ID of the user requesting access</param>
     /// <returns>The Classroom entity with included teacher information</returns>
     /// <exception cref="KeyNotFoundException">Thrown if classroom does not exist</exception>
-    /// <exception cref="UnauthorizedAccessException">Thrown if user is not authorized to access the classroom</exception>
-    public async Task<Classroom> GetClassroomDataAsync(Guid classId, Guid userId)
+    public async Task<Classroom> GetClassroomDataAsync(Guid classId)
     {
-        // Load classroom with teacher information
+        // Load classroom with creator information
         var classroom = await _context.Classrooms
             .Include(c => c.user)
             .FirstOrDefaultAsync(c => c.class_id == classId);
@@ -74,25 +74,16 @@ public class ClassroomRepository : IClassroomRepository
         {
             throw new KeyNotFoundException("Classroom not found.");
         }
-
-        // // Authorization check for creators - can only access their own classrooms
-        // if (classroom.user_id != userId)
-        // {
-        //     throw new UnauthorizedAccessException("You do not have access to this classroom.");
-        // }
-        // // Authorization check for enrollees - must be enrolled in the classroom
-        // else
-        // {
-        //     var isEnrolled = await _context.Enrollments
-        //         .AnyAsync(e => e.class_id == classId && e.user_id == userId);
-
-        //     if (!isEnrolled)
-        //     {
-        //         throw new UnauthorizedAccessException("You are not enrolled in this classroom.");
-        //     }
-        // }
-
+        
         return classroom;
+    }
+
+    /// <summary>
+    /// Update classroom data
+    /// </summary>
+    public async Task UpdateClassroomAsync()
+    {
+        await _context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -101,20 +92,10 @@ public class ClassroomRepository : IClassroomRepository
     /// </summary>
     /// <param name="classId">The ID of the classroom to delete</param>
     /// <exception cref="InvalidOperationException">Thrown if classroom has active student enrollments</exception>
-    public async Task RemoveClassroomAsync(Guid classId)
+    public async Task DeleteClassroomAsync(Classroom classroom)
     {
-        // Check if classroom has any active enrollments
-        var hasStudent = await _context.Enrollments
-            .AnyAsync(e => e.class_id == classId);
-
-        if (hasStudent)
-        {
-            throw new InvalidOperationException("Cannot remove a class.");
-        }
-
         // Delete classroom from database
-        await _context.Classrooms
-            .Where(e => e.class_id == classId)
-            .ExecuteDeleteAsync();
+        _context.Classrooms.Remove(classroom);
+        await _context.SaveChangesAsync();
     }
 }

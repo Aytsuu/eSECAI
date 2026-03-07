@@ -50,7 +50,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.class_id); // Primary key
             entity.Property(e => e.class_name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.class_description).HasMaxLength(1000);
-            entity.Property(e => e.class_image);
+            entity.Property(e => e.class_banner);
             entity.Property(e => e.class_is_archived).HasDefaultValue(false);
             // Foreign key relationship to User (teacher)
             entity.HasOne(e => e.user)

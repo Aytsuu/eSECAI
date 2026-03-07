@@ -1,6 +1,7 @@
 using eSECAI.Domain.Entities;
 using eSECAI.Application.Interfaces;
 using System.Security.Cryptography;
+using eSECAI.Application.DTOs;
 
 public class VerifyUserUseCase
 {

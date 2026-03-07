@@ -1,5 +1,6 @@
 using eSECAI.Domain.Entities;
 using eSECAI.Application.Interfaces;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.Application.UseCases.Auth;
 
@@ -46,12 +47,12 @@ public class UpdateUserUseCase
     /// <summary>
     /// Recover account via reset password
     /// </summary>
-    /// <param name="request">ResetPasswordRequest contains email and new password</param>
-    public async Task ExecuteResetPasswordAsync(ResetPasswordRequest request)
+    /// <param name="dto">ResetPasswordRequest contains email and new password</param>
+    public async Task ExecuteResetPasswordAsync(ResetPasswordRequest dto)
     {
-        var user = await _authRepository.CurrentUserAsync(null, request.email);
+        var user = await _authRepository.CurrentUserAsync(null, dto.email);
 
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.password);
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.password);
         user.password = hashedPassword;
 
         // Remove user data from redis cache 
@@ -64,28 +65,28 @@ public class UpdateUserUseCase
     /// <summary>
     /// Updates user data based on non null values
     /// </summary>
-    /// <param name="request">UpdateUserRequest contains nullable user attributes</param>
-    public async Task ExecuteUpdateUserAsync(UpdateUserRequest request)
+    /// <param name="dto">UpdateUserRequest contains nullable user attributes</param>
+    public async Task ExecuteUpdateUserAsync(UpdateUserRequest dto)
     {
-        var user = await _authRepository.CurrentUserAsync(request.userId, null);
+        var user = await _authRepository.CurrentUserAsync(dto.userId, null);
 
         // Update only non null attributes
-        if (request.email != null)
+        if (dto.email != null)
         {
-            user.email = request.email;
+            user.email = dto.email;
         }
-        if (request.password != null)
+        if (dto.password != null)
         {
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.password);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.password);
             user.password = hashedPassword;
         }
-        if (request.displayName != null)
+        if (dto.displayName != null)
         {
-            user.display_name = request.displayName;
+            user.display_name = dto.displayName;
         }
-        if (request.displayImage != null)
+        if (dto.displayImage != null)
         {
-            user.display_image = request.displayImage;
+            user.display_image = dto.displayImage;
         }
 
         // Remove user data from redis cache 

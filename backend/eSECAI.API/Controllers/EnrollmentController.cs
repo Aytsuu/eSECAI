@@ -42,7 +42,7 @@ public class EnrollmentController : ControllerBase
     /// <response code="401">User is not authenticated</response>
     [Authorize]
     [HttpPost("create")]
-    public async Task<IActionResult> EnrollStudent(CreateEnrollmentDto request)
+    public async Task<IActionResult> EnrollUser(CreateEnrollmentDto request)
     {
         try
         {
@@ -70,7 +70,7 @@ public class EnrollmentController : ControllerBase
     {
         try
         {
-            var enrollments = await _getUseCase.ExecuteGetStudentEnrollmentAsync(userId);
+            var enrollments = await _getUseCase.ExecuteGetUserEnrollmentAsync(userId);
             return Ok(enrollments);
         }
         catch (Exception ex)

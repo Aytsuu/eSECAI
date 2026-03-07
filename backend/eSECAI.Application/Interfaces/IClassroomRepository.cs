@@ -5,7 +5,8 @@ namespace eSECAI.Application.Interfaces;
 public interface IClassroomRepository
 {
     Task<Classroom> AddAsync(Classroom classroom);
-    Task<IEnumerable<Classroom>> GetClassroomsByUserIdAsync(Guid userId);
-    Task<Classroom> GetClassroomDataAsync(Guid classId, Guid userId);
-    Task RemoveClassroomAsync(Guid classId);
+    Task<IEnumerable<Classroom>> GetClassroomsByCreatorAsync(Guid userId);
+    Task<Classroom> GetClassroomDataAsync(Guid classId);
+    Task UpdateClassroomAsync();
+    Task DeleteClassroomAsync(Classroom classroom);
 }

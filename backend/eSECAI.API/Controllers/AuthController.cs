@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using System;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.API.Controllers;
 
@@ -62,7 +63,8 @@ public class AuthController : ControllerBase
             return Ok (new {
                 userId = freshData.user_id,
                 email = freshData.email,
-                displayName = freshData.display_name
+                displayName = freshData.display_name,
+                displayImage = freshData.display_image
             });
         }
         catch (KeyNotFoundException knfEx)
@@ -243,7 +245,7 @@ public class AuthController : ControllerBase
     /// <response code="200">User data updated successfully</response>
     /// <response code="400">Failed to update user data</response>
     [Authorize]
-    [HttpPatch]
+    [HttpPatch("patch/user-{userId}")]
     public async Task<IActionResult> UpdateUserData(UpdateUserRequest request)
     {
         try 
@@ -352,6 +354,8 @@ public class AuthController : ControllerBase
         // Get the email claim from Google's response
         var email = claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
         var displayName = claims?.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value;
+        var displayImage = claims?.FirstOrDefault(c => c.Type == "picture")?.Value 
+               ?? claims?.FirstOrDefault(c => c.Type == "urn:google:picture")?.Value;
 
         if (string.IsNullOrWhiteSpace(email)) {
             return BadRequest("Failed to extract email.");
@@ -361,8 +365,13 @@ public class AuthController : ControllerBase
             return BadRequest("Failed to extract name in email.");
         }
 
+        if (string.IsNullOrEmpty(displayImage))
+        {
+            return BadRequest("Failed to extract display picture in email.");
+        }
+
         // Get or create user and generate tokens
-        var user = await _getUseCase.ExecuteGoogleSigninAsync(email, displayName);
+        var user = await _getUseCase.ExecuteGoogleSigninAsync(email, displayName, displayImage);
 
         // Delete the temporary Google cookie so it doesn't clutter the browser
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -371,7 +380,7 @@ public class AuthController : ControllerBase
         SetTokenCookies(user.accessToken, user.refreshToken);
         
         // Redirect to frontend with tokens in query string
-        return Redirect($"http://localhost:3000/authentication/callback?userId={user.userId}&email={email}&displayName={displayName}");
+        return Redirect($"http://localhost:3000/authentication/callback?userId={user.userId}&email={email}&displayName={displayName}&displayImage={displayImage}");
     }
 
     /// <summary>

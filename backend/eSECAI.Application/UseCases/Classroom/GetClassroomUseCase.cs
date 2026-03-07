@@ -1,5 +1,6 @@
 using eSECAI.Domain.Entities;
 using eSECAI.Application.Interfaces;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.Application.UseCases.Classrooms;
 
@@ -9,15 +10,17 @@ namespace eSECAI.Application.UseCases.Classrooms;
 /// </summary>
 public class GetClassroomUseCase
 {
-    private readonly IClassroomRepository _repository;
+    private readonly IClassroomRepository _classroomRepo;
+    private readonly IEnrollmentRepository _enrollmentRepo;
 
     /// <summary>
     /// Initializes the GetClassroomUseCase with the classroom repository
     /// </summary>
     /// <param name="repository">Repository for classroom data operations</param>
-    public GetClassroomUseCase(IClassroomRepository repository)
+    public GetClassroomUseCase(IClassroomRepository classroomRepo, IEnrollmentRepository enrollmentRepo)
     {
-        _repository = repository;
+        _classroomRepo = classroomRepo;
+        _enrollmentRepo = enrollmentRepo;
     }
 
     /// <summary>
@@ -25,9 +28,19 @@ public class GetClassroomUseCase
     /// </summary>
     /// <param name="userId">The ID of the user whose classrooms to retrieve</param>
     /// <returns>Collection of Classroom entities created by the user</returns>
-    public async Task<IEnumerable<Classroom>> ExecuteGetByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<ClassroomDataResponse>> ExecuteGetByCreatorAsync(Guid userId)
     {
-        return await _repository.GetClassroomsByUserIdAsync(userId);
+        var classrooms = await _classroomRepo.GetClassroomsByCreatorAsync(userId);
+        var responseList = classrooms.Select(c => new ClassroomDataResponse(
+            c.class_id,
+            c.class_name,
+            c.class_description,
+            c.class_banner,
+            c.class_created_at,
+            null
+        ));
+
+        return responseList;
     }
 
     /// <summary>
@@ -38,24 +51,42 @@ public class GetClassroomUseCase
     /// <returns>ClassroomResponse with classroom details and teacher information</returns>
     /// <exception cref="KeyNotFoundException">Thrown if classroom does not exist</exception>
     /// <exception cref="UnauthorizedAccessException">Thrown if user is not authorized to access the classroom</exception>
-    public async Task<ClassroomResponse> ExecuteGetClassroomDataAsync(Guid classId, Guid userId)
+    public async Task<ClassroomDataResponse> ExecuteGetClassroomDataAsync(Guid classId, Guid userId)
     {
         // Retrieve classroom with authorization checks
-        var classData = await _repository.GetClassroomDataAsync(classId, userId);
+        var classroom = await _classroomRepo.GetClassroomDataAsync(classId);
 
-        if (classData == null)
+        if (classroom == null)
         {
             throw new KeyNotFoundException("Classroom not found");
         }
 
+        // Validate user 
+        var isEnrolled = await _enrollmentRepo.CheckUserEnrollment(classId, userId);
+
+        if (!isEnrolled && classroom.user_id != userId)
+        {
+            throw new UnauthorizedAccessException("You do not have access to this classroom.");
+        }
+
+        if (classroom.user == null)
+        {
+            throw new InvalidOperationException($"The creator data for classroom {classroom.class_id} was not loaded from the database.");
+        }
+
         // Build and return response DTO
-        return new ClassroomResponse(
-            classData.class_id,
-            classData.class_name,
-            classData.class_description,
-            classData.class_created_at,
-            classData.user?.display_name ?? "Unknown Creator",
-            classData.user?.display_image ?? string.Empty
+        return new ClassroomDataResponse(
+            classroom.class_id,
+            classroom.class_name,
+            classroom.class_description,
+            classroom.class_banner,
+            classroom.class_created_at,
+            new ClassroomCreator(
+                classroom.user.user_id,
+                classroom.user.email,
+                classroom.user.display_name,
+                classroom.user.display_image
+            )
         );
     }
 }

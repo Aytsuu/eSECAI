@@ -23,18 +23,19 @@ public static class DependencyInjection
         services.AddScoped<CreateClassroomUseCase>();
         services.AddScoped<GetClassroomUseCase>();
         services.AddScoped<DeleteClassroomUseCase>();
-        
+        services.AddScoped<UpdateClassroomUseCase>();
+
         // Register Auth Use Cases
         services.AddScoped<CreateUserUseCase>();
         services.AddScoped<GetUserUseCase>();
         services.AddScoped<UpdateUserUseCase>();
+        services.AddScoped<VerifyUserUseCase>();
 
         // Register Enrollment Use Cases
         services.AddScoped<CreateEnrollmentUseCase>();
         services.AddScoped<GetEnrollmentUseCase>();
         services.AddScoped<UpdateEnrollmentUseCase>();
-        services.AddScoped<VerifyUserUseCase>();
-
+        
         return services;
     }
 }

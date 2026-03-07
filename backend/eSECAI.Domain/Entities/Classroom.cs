@@ -13,7 +13,7 @@ public class Classroom
     public Guid class_id { get; set; }
     public string class_name { get; set; } = default!;
     public string class_description { get; set; } = default!;
-    public string class_image { get; set; } = default!;
+    public string class_banner { get; set; } = default!;
     public bool class_is_archived { get; set; } = false;
     public DateTime class_created_at { get; set; }
     public DateTime class_updated_at { get; set; }
@@ -35,7 +35,7 @@ public class Classroom
         Guid userId, 
         string? name, 
         string? description, 
-        string? image
+        string? banner
     )
     {
         // Business rule: A classroom must have a teacher
@@ -48,7 +48,7 @@ public class Classroom
             class_id = Guid.NewGuid(),
             class_name = name ?? "New Classroom", // Default name if not provided
             class_description = description ?? string.Empty,
-            class_image = image ?? string.Empty,
+            class_banner = banner ?? string.Empty,
             user_id = userId
         };
     }

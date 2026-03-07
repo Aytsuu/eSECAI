@@ -1,1 +1,0 @@
-public record VerifyEmailRequest(string email, string otpCode, string type);

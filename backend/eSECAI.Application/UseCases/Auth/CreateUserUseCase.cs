@@ -1,6 +1,7 @@
 using eSECAI.Domain.Entities;
 using eSECAI.Application.Interfaces;
 using System.Security.Cryptography;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.Application.UseCases.Auth;
 
@@ -31,17 +32,17 @@ public class CreateUserUseCase
     /// Executes the user signup process
     /// Hashes the password using BCrypt and creates a new user in the database
     /// </summary>
-    /// <param name="request">SignupRequest containing username and password</param>
+    /// <param name="dto">SignupRequest containing username and password</param>
     /// <returns>The newly created User entity</returns>
     /// <exception cref="InvalidDataException">Thrown if validation fails during signup</exception>
-    public async Task<User> ExecuteSignupAsync(SignupRequest request)
+    public async Task<User> ExecuteSignupAsync(SignupRequest dto)
     {
 
         // Hash the password using BCrypt for secure storage
-        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.password);
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.password);
         
         // Create a new user with domain validation
-        var user = User.Build(request.name, request.email, hashedPassword, null);
+        var user = User.Build(dto.name, dto.email, hashedPassword, null, null);
 
         // Persist the user to the database
         await _authRepository.SignupAsync(user);

@@ -1,1 +1,0 @@
-public record ResendOtpRequest(string email);

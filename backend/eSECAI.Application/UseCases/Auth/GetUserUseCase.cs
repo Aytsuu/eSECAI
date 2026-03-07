@@ -2,6 +2,7 @@ using eSECAI.Application.Interfaces;
 using eSECAI.Domain.Entities;
 using eSECAI.Domain.Exceptions;
 using System.Text.Json;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.Application.UseCases.Auth;
 
@@ -46,21 +47,21 @@ public class GetUserUseCase
     /// Executes the login process with username and password
     /// Validates credentials and generates JWT and refresh tokens upon success
     /// </summary>
-    /// <param name="request">LoginRequest containing username and password</param>
+    /// <param name="dto">LoginRequest containing username and password</param>
     /// <returns>AuthResponse with JWT token, refresh token, and user details</returns>
     /// <exception cref="UnauthorizedAccessException">Thrown if credentials are invalid</exception>
-    public async Task<AuthResponse> ExecuteLoginAsync(LoginRequest request)
+    public async Task<AuthResponse> ExecuteLoginAsync(LoginRequest dto)
     {
-        var user = await _authRepository.LoginAsync(request.email, request.password);
+        var user = await _authRepository.LoginAsync(dto.email, dto.password);
         
         // Store to redis cache for faster retrieval
-        var cacheKey = $"auth:user:{request.email}";
+        var cacheKey = $"auth:user:{dto}";
         await _redisCache.SaveRedisCacheAsync(cacheKey, user, TimeSpan.FromHours(1));
 
         // Check if email is verified
         if (!user.is_email_verified)
         {
-            await _verifyUseCase.ExecuteSendOtp(request.email);
+            await _verifyUseCase.ExecuteSendOtp(dto.email);
             throw new EmailNotVerifiedException("Email verification is required");
         }
 
@@ -82,7 +83,7 @@ public class GetUserUseCase
     /// <param name="name">User's email address from Google OAuth</param>
     /// <param name="email">User's email address from Google OAuth</param>
     /// <returns>AuthResponse with JWT token, refresh token, and user details</returns>
-    public async Task<AuthResponse> ExecuteGoogleSigninAsync(string email, string name)
+    public async Task<AuthResponse> ExecuteGoogleSigninAsync(string email, string name, string image)
     {
         // Attempt to find existing user by email
         var user = await _authRepository.GoogleSigninAsync(email);
@@ -90,7 +91,7 @@ public class GetUserUseCase
         // If user doesn't exist, create a new account
         if (user == null)
         {
-            user = await _authRepository.SignupAsync(User.Build(name, email, null, true));
+            user = await _authRepository.SignupAsync(User.Build(name, email, null, true, image));
         }
 
         // Store to redis cache for faster retrieval

@@ -52,18 +52,40 @@ public class EnrollmentRepository : IEnrollmentRepository
     }
 
     /// <summary>
-    /// Retrieves all active enrollments for a specific student
-    /// Returns detailed information about each classroom the student is enrolled in
+    /// Retrieves all active enrollments for a specific user
+    /// Returns detailed information about each classroom the user is enrolled in
     /// </summary>
-    /// <param name="userId">The ID of the student</param>
+    /// <param name="userId">The ID of the user</param>
     /// <returns>Collection of active Enrollment entities with classroom information</returns>
-    public async Task<IEnumerable<Enrollment>> GetStudentEnrollmentAsync(Guid userId)
+    public async Task<IEnumerable<Enrollment>> GetUserEnrollmentAsync(Guid userId)
     {
-        // Query active enrollments for the student with classroom details
+        // Query active enrollments for the user with classroom details
         return await _context.Enrollments
             .Where(e => e.user_id == userId)
             .Include(e => e.classroom)
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Check if any enrollments has the following classId
+    /// </summary>
+    public async Task<bool> ClassHasEnrolledUser(Guid classId)
+    {
+        return await _context.Enrollments.AnyAsync(e => e.class_id == classId);
+    }
+
+    /// <summary>
+    /// Checking if a user is enrolled in this classroom
+    /// </summary>
+    /// <param name="classId">The ID of the classroom</param>
+    /// <param name="userId">The ID of the student</param>
+    /// <returns>Boolean result of the check</returns>
+    public async Task<bool> CheckUserEnrollment(Guid classId, Guid userId)
+    {
+        var result = await _context.Enrollments
+            .AnyAsync(e => e.class_id == classId && e.user_id == userId);
+
+        return result;
     }
 
     /// <summary>

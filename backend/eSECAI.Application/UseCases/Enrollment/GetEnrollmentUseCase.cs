@@ -23,15 +23,15 @@ public class GetEnrollmentUseCase
     }
 
     /// <summary>
-    /// Retrieves all active enrollments for a specific student
-    /// Returns detailed information about each classroom the student is enrolled in
+    /// Retrieves all active enrollments for a specific user
+    /// Returns detailed information about each classroom the user is enrolled in
     /// </summary>
-    /// <param name="userId">The ID of the student</param>
+    /// <param name="userId">The ID of the user</param>
     /// <returns>Collection of EnrollmentDto objects with classroom details</returns>
-    public async Task<IEnumerable<EnrollmentDto>> ExecuteGetStudentEnrollmentAsync(Guid userId)
+    public async Task<IEnumerable<EnrollmentDto>> ExecuteGetUserEnrollmentAsync(Guid userId)
     {
-        // Retrieve student's active enrollments from database
-        var enrollments = await _repository.GetStudentEnrollmentAsync(userId);
+        // Retrieve users's active enrollments from database
+        var enrollments = await _repository.GetUserEnrollmentAsync(userId);
 
         // Map enrollment entities to DTOs with classroom information
         return enrollments.Select(e => new EnrollmentDto(

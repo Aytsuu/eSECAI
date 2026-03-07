@@ -165,7 +165,7 @@ public class AuthRepository : IAuthRepository
     public async Task<User> GoogleSigninAsync(string email)
     {
         // Find user by email (case-sensitive query)
-        var user = await CurrentUserAsync(null, email);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.email == email);
         return user!;
     }
 }

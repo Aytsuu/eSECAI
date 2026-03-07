@@ -13,6 +13,8 @@ using eSECAI.Infrastructure.Repositories;
 using NRedisStack;
 using StackExchange.Redis;
 using Microsoft.AspNetCore.Http;
+using Minio;
+using Microsoft.AspNetCore.Authentication;
 
 namespace eSECAI.Infrastructure;
 
@@ -64,8 +66,6 @@ public static class DependencyInjection
                 // Google OAuth Exception: When Google succeeds, temporarily save the identity to a Cookie
                 options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
-                // options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                // options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
             })
             // Configure JWT Bearer Token validation
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -104,6 +104,7 @@ public static class DependencyInjection
                 options.ClientId = config["Authentication:Google:ClientId"]!;
                 options.ClientSecret = config["Authentication:Google:ClientSecret"]!;
                 options.CallbackPath = "/api/auth/signin-google";
+                options.ClaimActions.MapJsonKey("picture", "picture");
                 options.SaveTokens = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.Lax;
                 options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -114,6 +115,12 @@ public static class DependencyInjection
                     return Task.CompletedTask;
                 };
             });
+        
+        services.AddMinio(configureSource => configureSource
+            .WithEndpoint(config["Minio:Endpoint"])
+            .WithCredentials(config["Minio:AccessKey"], config["Minio:SecretKey"])
+            .WithSSL(false)
+            .Build());
 
         // Register Repository and External Services
         services.AddScoped<AuthService>();
@@ -123,6 +130,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IRedisCacheService, RedisCacheService>();
+        services.AddScoped<IMinioFileService, MinioFileService>();
 
         return services;
     }

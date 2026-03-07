@@ -13,7 +13,7 @@ public class User
     public string email { get; set; } = default!;
     public string password { get; set; } = default!;
     public string display_name { get; set; } = default!;
-    public string display_image { get; set; } = "https://res.cloudinary.com/dzcmadjl1/image/upload/v1694868283/default_profile_image_oqxv6r.png";
+    public string display_image { get; set; } = default!;
     public bool is_admin { get; set; } = false;
     public bool is_email_verified { get; set; } = false;
     public DateTime user_created_at { get; set; }
@@ -32,7 +32,13 @@ public class User
     /// <param name="is_email_verified">Email verified status</param>
     /// <returns>A new User instance with default values</returns>
     /// <exception cref="DomainException">Thrown if neither email nor username is provided</exception>
-    public static User Build(string name, string? email, string? password, bool? is_email_verified)
+    public static User Build(
+        string name, 
+        string? email, 
+        string? password, 
+        bool? is_email_verified,
+        string? image
+)
     {
         // Business rule: User must have either email or username
         if (string.IsNullOrWhiteSpace(email))
@@ -46,7 +52,7 @@ public class User
             email = email ?? "", 
             password = password ?? "",
             display_name = name,
-            display_image = "https://res.cloudinary.com/dzcmadjl1/image/upload/v1694868283/default_profile_image_oqxv6r.png",
+            display_image = image ?? "",
             is_email_verified = is_email_verified ?? false
         };
     }
