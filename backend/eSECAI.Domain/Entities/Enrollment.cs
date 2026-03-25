@@ -11,7 +11,18 @@ namespace eSECAI.Domain.Entities;
 public class Enrollment
 {
     public Guid enroll_id { get; set; }
-    public bool enroll_is_approved { get; set; } = false;
+    private string _enroll_status = "pending";
+
+    public string enroll_status
+    {
+        get => _enroll_status;
+        set
+        {
+            if (value != "pending" && value != "accepted" && value != "rejected" && value != "removed")
+                throw new DomainException("Invalid status. Allowed values are: pending, accepted, rejected, removed.");
+            _enroll_status = value;
+        }
+    }
     public DateTime enroll_created_at { get; set; }
     public Guid class_id { get; set; }
     public Guid user_id { get; set; }

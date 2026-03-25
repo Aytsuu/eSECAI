@@ -1,26 +1,50 @@
-import { EnrollmentCreateRequest } from "../types/enrollment";
+import { PendingEnrollments } from "@/types/enrollment";
 import { api } from "./api.service";
+import { UserProfile } from "@/types/auth";
 
 export const EnrollmentService = {
-  create: async (data: EnrollmentCreateRequest) => {
+  create: async (classId: string) => {
     try {
-      const res = await api.post('api/enrollment/create', data);
+      const res = await api.post<PendingEnrollments>('api/enrollment/create', { classId });
       return res.data;
     } catch (err) {
       throw err;
     }
   },
-  getEnrolledClasses: async (userId: string) => {
+  getEnrollments: async (status: string) => {
     try {
-      const res = await api.get(`api/enrollment/get/${userId}`)
+      const res = await api.get(`api/enrollment/get`, { 
+        params: {
+          status
+        }
+       });
       return res.data;
     } catch (err) {
       throw err;
     }
   },
-  updateStatus: async ({ classId, userId }: { classId: string; userId: string }) => {
+  updateStatus: async (classId: string, userId: string, status: string) => {
     try {
-      const res = await api.patch(`api/enrollment/update/status/${classId}/${userId}`);
+      const res = await api.patch(`api/enrollment/update/${classId}/${userId}/status`, { status });
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  }, 
+  delete: async (classId: string) => {
+    try {
+      const res = await api.delete(`api/enrollment/delete/${classId}`)
+    } catch (err) {
+      throw err;
+    }
+  },
+  getClassroomEnrollments: async (classId: string, status: string) => {
+    try {
+      const res = await api.get<UserProfile[]>(`api/enrollment/classroom/${classId}/users`, {
+        params: {
+          status
+        }
+      });
       return res.data;
     } catch (err) {
       throw err;

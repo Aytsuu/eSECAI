@@ -5,7 +5,7 @@ namespace eSECAI.Application.DTOs;
 /// Classroom
 /// Everything should be in JS naming convention
 /// </summary>
-public record ClassroomCreator(
+public record UserData(
   Guid userId,
   string email,
   string displayName,
@@ -18,7 +18,7 @@ public record ClassroomDataResponse(
     string classDescription, 
     string classBanner,
     DateTime classCreatedAt,
-    ClassroomCreator? creator
+    UserData? creator
 );
 
 public record CreateClassroomRequest(

@@ -1,1 +1,0 @@
-public record CreateEnrollmentDto(Guid classId, Guid userId);

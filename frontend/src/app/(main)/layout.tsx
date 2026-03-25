@@ -14,7 +14,7 @@ export default ({children} : {children: React.ReactNode}) => {
       </div>
       <div className="w-full h-full flex flex-col overflow-hidden">
         <Header/>
-        <div className="w-full flex-1 overflow-y-auto p-5">
+        <div className="w-full flex-1 overflow-y-auto">
           {children}
         </div>
       </div>

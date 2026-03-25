@@ -69,8 +69,8 @@ public class AppDbContext : DbContext
         {
 
             entity.HasKey(e => e.enroll_id);
-            entity.Property(e => e.enroll_is_approved).HasDefaultValue(false);
             entity.Property(e => e.enroll_created_at);
+            entity.Property(e => e.enroll_status).HasDefaultValue("pending");
             entity.HasOne(e => e.classroom)
                 .WithMany()
                 .HasForeignKey(e => e.class_id)

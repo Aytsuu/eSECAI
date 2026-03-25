@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { signupSchema } from "../../../schemas/auth.schema";
-import { useSignup } from "../../../hooks/useAuth";
+import { useSignup } from "../../../hooks/use-auth";
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";

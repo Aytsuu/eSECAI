@@ -16,7 +16,6 @@ public class ClassroomRepository : IClassroomRepository
 {
     private readonly AppDbContext _context;
     private readonly ILogger<ClassroomRepository> _logger;
-    private readonly MinioFileService _minioFileService;
 
     /// <summary>
     /// Initializes the ClassroomRepository with database context and logger

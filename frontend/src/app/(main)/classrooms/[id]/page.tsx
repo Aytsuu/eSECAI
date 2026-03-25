@@ -1,12 +1,12 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
-import { useDeleteClassroom, useGetClassroomData, useUpdateClassroom } from "@/hooks/useClassroom";
+import { useDeleteClassroom, useGetClassroomData, useUpdateClassroom } from "@/hooks/use-classroom";
 import { Button } from "@/components/ui/button";
-import { useUpdateStatus } from "@/hooks/useEnrollment";
+import { useClassEnrollmentRequests, useClassEnrollments, useUpdateEnrollmentStatus } from "@/hooks/use-enrollment";
 import React from "react";
-import Protected from "@/components/route/protected";
+import Protected from "@/app/(main)/protected";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +53,12 @@ import {
   CalendarDays,
   Pin,
   Pen,
+  ChevronRight,
+  UserCheck,
+  UserX,
+  Inbox,
+  Check,
+  X,
 } from "lucide-react";
 import { UserProfile } from "@/types/auth";
 import { Post } from "@/types/classroom";
@@ -64,6 +70,7 @@ import { classroomSchema } from "@/schemas/classroom.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ClassroomForm from "../ClassroomForm";
 import axios from "axios";
+import { queryError } from "@/helpers/errorDisplay";
 
 function getInitials(name: string) {
   return name
@@ -129,6 +136,151 @@ function EmptyPosts() {
   );
 }
 
+// ── Requests Sidebar ──────────────────────────────────────────────────────────
+function RequestsSidebar({
+  requests,
+  isLoading,
+  isOpen,
+  onToggle,
+  onApprove,
+  onReject,
+}: {
+  requests: UserProfile[];
+  isLoading: boolean;
+  isOpen: boolean;
+  onToggle: () => void;
+  onApprove: (userId: string) => void;
+  onReject: (userId: string) => void;
+}) {
+  return (
+    <div
+      className={`
+        relative flex flex-col border-l border-border/50 bg-background/80 backdrop-blur-sm
+        transition-all duration-300 ease-in-out shrink-0
+        ${isOpen ? "w-72" : "w-10"}
+      `}
+    >
+      {/* Toggle button */}
+      <button
+        onClick={onToggle}
+        className="absolute -left-3.5 top-6 z-10 w-7 h-7 rounded-full border border-border/60 bg-background shadow-sm flex items-center justify-center hover:bg-muted transition-colors"
+        aria-label={isOpen ? "Collapse requests panel" : "Expand requests panel"}
+      >
+        <ChevronRight
+          size={14}
+          className={`text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {/* Collapsed state: rotated label */}
+      {!isOpen && (
+        <div className="flex flex-col items-center pt-16 gap-2">
+          <span
+            className="text-[10px] font-semibold text-muted-foreground tracking-widest uppercase"
+            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+          >
+            Requests
+          </span>
+          {requests.length > 0 && (
+            <Badge className="text-[9px] h-4 px-1 bg-amber-500 hover:bg-amber-500 text-white border-0">
+              {requests.length}
+            </Badge>
+          )}
+        </div>
+      )}
+
+      {/* Expanded state */}
+      {isOpen && (
+        <div className="flex flex-col h-full overflow-hidden">
+          <div className="px-4 pt-5 pb-3 border-b border-border/40 flex items-center gap-2 shrink-0">
+            <Inbox size={14} className="text-muted-foreground" />
+            <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase flex-1">
+              Join Requests
+            </p>
+            {requests.length > 0 && (
+              <Badge className="text-[10px] h-4 px-1.5 bg-amber-500 hover:bg-amber-500 text-white border-0">
+                {requests.length}
+              </Badge>
+            )}
+          </div>
+
+          <ScrollArea className="flex-1 px-3 py-3">
+            {isLoading ? (
+              <div className="flex flex-col gap-2 pt-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-14 rounded-xl bg-muted/50 animate-pulse" />
+                ))}
+              </div>
+            ) : requests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                  <UserCheck size={16} className="text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">No pending requests</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {requests.map((req) => (
+                  <div
+                    key={req.userId}
+                    className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-colors"
+                  >
+                    <Avatar className="w-8 h-8 border border-border/50 shrink-0">
+                      <AvatarImage src={req.displayImage} />
+                      <AvatarFallback className="text-[10px] font-bold">
+                        {getInitials(req.displayName ?? "?")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground truncate">
+                        {req.displayName}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground truncate">
+                        {req.email}
+                      </p>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => onApprove(req.userId)}
+                              className="w-6 h-6 rounded-lg cursor-pointer bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 flex items-center justify-center transition-colors"
+                            >
+                              <Check size={11} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="text-xs">
+                            Approve
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => onReject(req.userId)}
+                              className="w-6 h-6 rounded-lg cursor-pointer bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-colors"
+                            >
+                              <X size={11} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="text-xs">
+                            Reject
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </div>
+      )}
+    </div>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default () => {
   // Hooks & States
   const { user } = useAuth();
@@ -137,32 +289,32 @@ export default () => {
   const classId = urlParams.get("id") as string;
 
   const form = useForm<z.infer<typeof classroomSchema>>({
-      resolver: zodResolver(classroomSchema),
-      defaultValues: { name: "", description: "" },
-    });
+    resolver: zodResolver(classroomSchema),
+    defaultValues: { name: "", description: "" },
+  });
 
   const [isMounted, setIsMounted] = React.useState<boolean>(false);
   const [showClassroomDialog, setShowClassroomDialog] = React.useState<boolean>(false);
   const [isUpdatingClassroom, setIsUpdatingClassroom] = React.useState<boolean>(false);
   const [showLeaveDialog, setShowLeaveDialog] = React.useState<boolean>(false);
-  const [showDeleteDialog, setShowDeleteDialog] =
-    React.useState<boolean>(false);
-  const [showNewPostDialog, setShowNewPostDialog] =
-    React.useState<boolean>(false);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState<boolean>(false);
+  const [showNewPostDialog, setShowNewPostDialog] = React.useState<boolean>(false);
   const [postContent, setPostContent] = React.useState<string>("");
-  const [isSubmittingPost, setIsSubmittingPost] =
-    React.useState<boolean>(false);
+  const [isSubmittingPost, setIsSubmittingPost] = React.useState<boolean>(false);
+  const [isRequestsPanelOpen, setIsRequestsPanelOpen] = React.useState<boolean>(true);
 
-  const { mutateAsync: updateStatus } = useUpdateStatus();
+  const { mutateAsync: updateEnrollmentStatus } = useUpdateEnrollmentStatus();
   const { mutateAsync: deleteClassroom } = useDeleteClassroom();
   const { mutateAsync: updateClassroom } = useUpdateClassroom();
-  const { data: classroomData, error } = useGetClassroomData(
+  const { data: classroomData, isLoading: isLoadingClassroomData, error } = useGetClassroomData(
     classId,
     user?.userId,
   );
+  const { data: classEnrollments, isLoading: isLoadingEnrollments } = useClassEnrollments(classId);
+  const { data: classEnrollmentRequests, isLoading: isLoadingRequests } = useClassEnrollmentRequests(classId);
 
   // Flags
-  const hasUpdate = form.formState.isDirty
+  const hasUpdate = form.formState.isDirty;
 
   // Effects
   React.useEffect(() => {
@@ -170,23 +322,21 @@ export default () => {
   }, []);
 
   React.useEffect(() => {
-    // This only runs once, even in Strict Mode
     if (!classId) {
       toast.error("Page not found");
       router.replace("/classrooms");
     }
-  }, [isMounted, classId, router]); // Run when classId is evaluated
+  }, [isMounted, classId, router]);
 
   React.useEffect(() => {
-    if (!classroomData) 
-      return;
+    if (!classroomData) return;
 
     form.reset({
       name: classroomData.className,
       description: classroomData.classDescription,
-      bannerFile: `${process.env.NEXT_PUBLIC_FILE_BUCKET}/${classroomData.classBanner}`
-    }, { keepDirty: false});
-  }, [classroomData, showClassroomDialog])
+      bannerFile: `${process.env.NEXT_PUBLIC_FILE_BUCKET}/${classroomData.classBanner}`,
+    }, { keepDirty: false });
+  }, [classroomData, showClassroomDialog]);
 
   const isCreator = user?.userId === classroomData?.creator?.userId;
 
@@ -204,36 +354,21 @@ export default () => {
       const formData = new FormData();
       const values = form.getValues();
 
-      // Add to form data only the updated fields
       Object.entries(values).forEach(([key, value]) => {
-        if (updatedFields[key]){
+        if (updatedFields[key]) {
           formData.append(key, value);
         }
       });
 
-      await updateClassroom({
-        classId: classId,
-        data: formData
-      });
-
+      await updateClassroom({ classId, data: formData });
       setShowClassroomDialog(false);
       toast.success("Successfully updated classroom");
-      
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.error(err.response?.data)
+        console.error(err.response?.data);
       }
     } finally {
       setIsUpdatingClassroom(false);
-    }
-  }
-
-  const handleLeaveClass = async () => {
-    try {
-      await updateStatus({ classId, userId: user?.userId });
-      router.replace("/classrooms");
-    } catch {
-      alert("Failed to update enrollment status. Please try again.");
     }
   };
 
@@ -259,207 +394,251 @@ export default () => {
     }
   };
 
+  const handleApproveRequest = async (userId: string) => {
+    try {
+      await updateEnrollmentStatus({
+        classId,
+        userId,
+        status: "accepted"
+      })
+      toast.success("Request approved");
+    } catch (err: any) {
+      queryError(err);
+      toast.error("Failed to approve request");
+    }
+  };
+
+  const handleRejectRequest = async (userId: string) => {
+    try {
+      await updateEnrollmentStatus({
+        classId,
+        userId,
+        status: "rejected"
+      })
+      toast.success("Request rejected");
+    } catch {
+      toast.error("Failed to reject request");
+    }
+  };
+
   if (!isMounted || !classId) return null;
 
   const data = classroomData;
-  const posts: Post[] = data?.posts ?? [];
-  const enrolledUsers: UserProfile[] = data?.enrolled_users ?? [];
+  const posts: Post[] = [];
+  const enrolledUsers: UserProfile[] = classEnrollments ?? [];
+  const enrollmentRequests: UserProfile[] = classEnrollmentRequests ?? [];
+
   const bannerUrl = data?.classBanner;
 
   return (
     <Protected error={error}>
-      <div className="max-w-6xl mx-auto pb-16 space-y-8">
-        {/* ── Banner ── */}
-        <div className="relative w-full h-52 md:h-64 rounded-2xl overflow-hidden shadow-lg">
-          {bannerUrl ? (
-            <img
-              src={`${process.env.NEXT_PUBLIC_FILE_BUCKET}/${bannerUrl}`}
-              alt="Class banner"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-linear-to-br from-violet-600 via-indigo-600 to-blue-700" />
-          )}
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+      {/* ── Outer two-column layout: main content + requests sidebar ── */}
+      <div className="flex h-full min-h-0 overflow-hidden">
 
-          {/* Banner content */}
-          <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7 flex items-end justify-between">
-            <div>
-              <Badge className="mb-2 bg-white/15 text-white border-0 backdrop-blur-sm text-[11px]">
-                <BookOpen size={10} className="mr-1" />
-                Classroom
-              </Badge>
-              <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-md leading-tight">
-                {data?.className}
-              </h1>
-              {data?.classDescription && (
-                <p className="text-sm text-white/75 mt-1 max-w-lg line-clamp-1">
-                  {data.classDescription}
-                </p>
+        {/* ── Left: all existing page content ── */}
+        <div className="flex-1 overflow-y-auto p-5">
+          <div className="max-w-6xl mx-auto pb-16 space-y-8 px-4 lg:px-6">
+            {/* ── Banner ── */}
+            <div className="relative w-full h-52 md:h-64 rounded-2xl overflow-hidden shadow-lg">
+              {bannerUrl ? (
+                <img
+                  src={`${process.env.NEXT_PUBLIC_FILE_BUCKET}/${bannerUrl}`}
+                  alt="Class banner"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-linear-to-br from-violet-600 via-indigo-600 to-blue-700" />
               )}
-              <p className="text-xs text-white/50 mt-1.5 flex items-center gap-1">
-                <CalendarDays size={11} />
-                Created {formatDate(data?.classCreatedAt ?? "")}
-              </p>
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+
+              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7 flex items-end justify-between">
+                <div>
+                  <Badge className="mb-2 bg-white/15 text-white border-0 backdrop-blur-sm text-[11px]">
+                    <BookOpen size={10} className="mr-1" />
+                    Classroom
+                  </Badge>
+                  <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-md leading-tight">
+                    {data?.className}
+                  </h1>
+                  {data?.classDescription && (
+                    <p className="text-sm text-white/75 mt-1 max-w-lg line-clamp-1">
+                      {data.classDescription}
+                    </p>
+                  )}
+                  <p className="text-xs text-white/50 mt-1.5 flex items-center gap-1">
+                    <CalendarDays size={11} />
+                    Created {formatDate(data?.classCreatedAt ?? "")}
+                  </p>
+                </div>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20 rounded-full w-9 h-9 backdrop-blur-sm"
+                    >
+                      <MoreVertical size={18} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuItem
+                      className="gap-2 cursor-pointer"
+                      onSelect={() => setShowClassroomDialog(true)}
+                    >
+                      <Pen />
+                      Edit Classroom
+                    </DropdownMenuItem>
+                    {isCreator ? (
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive gap-2 cursor-pointer"
+                        onSelect={() => setShowDeleteDialog(true)}
+                      >
+                        <Trash2 size={14} />
+                        Delete classroom
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive gap-2 cursor-pointer"
+                        onSelect={() => setShowLeaveDialog(true)}
+                      >
+                        <LogOut size={14} />
+                        Leave class
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
 
-            {/* Actions menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-white hover:bg-white/20 rounded-full w-9 h-9 backdrop-blur-sm"
-                >
-                  <MoreVertical size={18} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem
-                  className="gap-2 cursor-pointer"
-                  onSelect={() => setShowClassroomDialog(true)}
-                >
-                  <Pen />
-                  Edit Classroom
-                </DropdownMenuItem>
-                {isCreator ? (
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive gap-2 cursor-pointer"
-                    onSelect={() => setShowDeleteDialog(true)}
+            {/* ── Main layout: Feed + Sidebar ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-2">
+              {/* ── Left: Post feed ── */}
+              <div className="space-y-4">
+                {isCreator && (
+                  <button
+                    onClick={() => setShowNewPostDialog(true)}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-card/60 hover:bg-muted/40 transition-colors text-left shadow-sm"
                   >
-                    <Trash2 size={14} />
-                    Delete classroom
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive gap-2 cursor-pointer"
-                    onSelect={() => setShowLeaveDialog(true)}
-                  >
-                    <LogOut size={14} />
-                    Leave class
-                  </DropdownMenuItem>
+                    <Avatar className="w-8 h-8 border border-border/50">
+                      <AvatarImage src={user?.displayImage} />
+                      <AvatarFallback className="text-xs font-semibold">
+                        {getInitials(user?.displayName ?? "")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm text-muted-foreground">
+                      Share something with your class…
+                    </span>
+                  </button>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
 
-        {/* ── Main layout: Feed + Sidebar ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-2">
-          {/* ── Left: Post feed ── */}
-          <div className="space-y-4">
-            {/* New post trigger */}
-            {isCreator && (
-              <button
-                onClick={() => setShowNewPostDialog(true)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-border/50 bg-card/60 hover:bg-muted/40 transition-colors text-left shadow-sm"
-              >
-                <Avatar className="w-8 h-8 border border-border/50">
-                  <AvatarImage src={user?.displayImage} />
-                  <AvatarFallback className="text-xs font-semibold">
-                    {getInitials(user?.displayName ?? "")}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm text-muted-foreground">
-                  Share something with your class…
-                </span>
-              </button>
-            )}
-
-            {/* Posts */}
-            {posts.length === 0 ? (
-              <EmptyPosts />
-            ) : (
-              posts.map((post) => <PostCard key={post.id} post={post} />)
-            )}
-          </div>
-
-          {/* ── Right: Sidebar ── */}
-          <div className="space-y-4">
-            {/* Class code card */}
-            {isCreator && (
-              <div className="p-5 border bg-background rounded-xl space-y-3">
-                <p className="text-xs font-semibold text-muted-foreground tracking-wide">
-                  CLASS CODE
-                </p>
-                <div className="space-y-1">
-                  <p
-                    className="text-2xl font-bold tracking-widest text-foreground font-mono cursor-pointer"
-                    onClick={async (e) => {
-                      if (data?.classId) {
-                        try {
-                          // Use the modern Clipboard API
-                          await navigator.clipboard.writeText(data.classId);
-                          toast("Copied to clipboard!");
-                        } catch (err) {
-                          toast.error("Failed to copy");
-                        }
-                      }
-                    }}
-                  >
-                    {data?.classId?.slice(0, 6).toUpperCase()}...
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Click to copy full code. Share this code with students to join.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Students card */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xs font-semibold text-muted-foreground tracking-wide flex items-center gap-1.5">
-                    <Users size={12} />
-                    STUDENTS
-                  </CardTitle>
-                  <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
-                    {enrolledUsers.length}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {enrolledUsers.length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-3 text-center">
-                    No students enrolled yet.
-                  </p>
+                {posts.length === 0 ? (
+                  <EmptyPosts />
                 ) : (
-                  <ScrollArea className="max-h-64">
-                    <TooltipProvider>
+                  posts.map((post) => <PostCard key={post.id} post={post} />)
+                )}
+              </div>
+
+              {/* ── Right: Sidebar ── */}
+              <div className="space-y-4">
+                {isCreator && (
+                  <div className="p-5 border bg-background rounded-xl space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground tracking-wide">
+                      CLASS CODE
+                    </p>
+                    <div className="space-y-1">
+                      <p
+                        className="text-2xl font-bold tracking-widest text-foreground font-mono cursor-pointer"
+                        onClick={async () => {
+                          if (data?.classId) {
+                            try {
+                              await navigator.clipboard.writeText(data.classId);
+                              toast("Copied to clipboard!");
+                            } catch {
+                              toast.error("Failed to copy");
+                            }
+                          }
+                        }}
+                      >
+                        {data?.classId?.slice(0, 6).toUpperCase()}...
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Click to copy full code. Share this code with students to join.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ✅ Fixed: enrolledUsers now sourced from classEnrollments */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xs font-semibold text-muted-foreground tracking-wide flex items-center gap-1.5">
+                        <Users size={12} />
+                        STUDENTS
+                      </CardTitle>
+                      <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                        {enrolledUsers.length}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoadingEnrollments ? (
                       <div className="flex flex-wrap gap-2 pt-1">
-                        {enrolledUsers.map((u) => (
-                          <Tooltip key={u.userId}>
-                            <TooltipTrigger asChild>
-                              <Avatar className="w-9 h-9 border-2 border-background ring-1 ring-border/50 cursor-default hover:scale-110 transition-transform">
-                                <AvatarImage src={u.displayImage} />
-                                <AvatarFallback className="text-[10px] font-bold">
-                                  {getInitials(u.displayName ?? "?")}
-                                </AvatarFallback>
-                              </Avatar>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">
-                              <p className="font-semibold">{u.displayName}</p>
-                              <p className="text-muted-foreground">{u.email}</p>
-                            </TooltipContent>
-                          </Tooltip>
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="w-9 h-9 rounded-full bg-muted animate-pulse" />
                         ))}
                       </div>
-                    </TooltipProvider>
-                  </ScrollArea>
-                )}
-              </CardContent>
-            </Card>
+                    ) : enrolledUsers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground py-3 text-center">
+                        No students enrolled yet.
+                      </p>
+                    ) : (
+                      <ScrollArea className="max-h-64">
+                        <TooltipProvider>
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            {enrolledUsers.map((u) => (
+                              <Tooltip key={u.userId}>
+                                <TooltipTrigger asChild>
+                                  <Avatar className="w-9 h-9 border-2 border-background ring-1 ring-border/50 cursor-default hover:scale-110 transition-transform">
+                                    <AvatarImage src={u.displayImage} />
+                                    <AvatarFallback className="text-[10px] font-bold">
+                                      {getInitials(u.displayName ?? "?")}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-xs">
+                                  <p className="font-semibold">{u.displayName}</p>
+                                  <p className="text-muted-foreground">{u.email}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
+                          </div>
+                        </TooltipProvider>
+                      </ScrollArea>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* ── Right: Collapsible requests sidebar (page-level, outside main layout) ── */}
+        {isCreator && (
+          <RequestsSidebar
+            requests={enrollmentRequests}
+            isLoading={isLoadingRequests}
+            isOpen={isRequestsPanelOpen}
+            onToggle={() => setIsRequestsPanelOpen((prev) => !prev)}
+            onApprove={handleApproveRequest}
+            onReject={handleRejectRequest}
+          />
+        )}
       </div>
 
       {/* ── Classroom Form Dialog ── */}
-      <Dialog
-        open={showClassroomDialog}
-        onOpenChange={setShowClassroomDialog}
-      >
+      <Dialog open={showClassroomDialog} onOpenChange={setShowClassroomDialog}>
         <DialogContent className="sm:max-w-2xl rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -551,7 +730,7 @@ export default () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={handleLeaveClass}
+              // onClick={handleLeaveClass}
             >
               Leave
             </AlertDialogAction>

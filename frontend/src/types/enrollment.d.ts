@@ -1,4 +1,5 @@
-export interface EnrollmentCreateRequest {
+export type PendingEnrollments = {
   classId: string;
-  userId: string;
+  enrollAt: string;
+  className: string;
 }

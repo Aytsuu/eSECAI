@@ -1,5 +1,6 @@
 using eSECAI.Application.Interfaces;
 using eSECAI.Domain.Entities;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.Application.UseCases.Enrollments;
 
@@ -20,18 +21,27 @@ public class UpdateEnrollmentUseCase
         _repository = repository;
     }
 
-    /// <summary>
-    /// Executes the enrollment status update
-    /// Toggles the student's enrollment status between 'active' and 'inactive'
-    /// Can be used to pause or resume a student's access to a classroom
-    /// </summary>
-    /// <param name="classId">The ID of the classroom</param>
-    /// <param name="userId">The ID of the student</param>
-    /// <returns>The updated Enrollment entity with new status</returns>
-    /// <exception cref="KeyNotFoundException">Thrown if enrollment record is not found</exception>
-    public async Task<Enrollment> ExecuteUpdateEnrollmentStatusAsync(Guid classId, Guid userId)
+    public async Task<UserData> ExecuteUpdateEnrollmentStatusAsync(Guid classId, Guid userId, string status)
     {
-        // Update enrollment status and toggle between active/inactive
-        return await _repository.UpdateEnrollmentStatusAsync(classId, userId);
+        // Find the enrollment record
+        var enrollment = await _repository.GetEnrollmentAsync(classId, userId);
+
+        if (enrollment == null)
+        {
+            throw new KeyNotFoundException("User not found in this classroom");
+        }
+
+        enrollment.enroll_status = status;
+        await _repository.UpdateEnrollmentAsync();
+
+        // Update enrollment status
+        return new UserData(
+            enrollment.user!.user_id,
+            enrollment.user!.email,
+            enrollment.user!.display_name,
+            enrollment.user!.display_image
+        );
     }
+
+
 }

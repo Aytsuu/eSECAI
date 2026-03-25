@@ -30,25 +30,22 @@ public class EnrollmentRepository : IEnrollmentRepository
     /// </summary>
     /// <param name="enrollment">Enrollment entity to be created or reactivated</param>
     /// <returns>The enrollment record (newly created or reactivated)</returns>
-    public async Task<Enrollment> AddEnrollmentAsync(Enrollment enrollment)
+    public async Task<Enrollment> CreateEnrollmentAsync(Enrollment enrollment)
     {
-        // Check if student is already enrolled in this classroom
-        var alreadyEnrolled =  await _context.Enrollments
-            .AnyAsync(e => e.class_id == enrollment.class_id && e.user_id == enrollment.user_id);
-
-        // If already enrolled, reactivate the enrollment
-        if (alreadyEnrolled == true)
-        {
-            return await UpdateEnrollmentStatusAsync(enrollment.class_id, enrollment.user_id);
-        } 
-        // Otherwise create new enrollment
-        else
-        {
-            _context.Enrollments.Add(enrollment);
-            await _context.SaveChangesAsync();
-        }
+        _context.Enrollments.Add(enrollment);
+        await _context.SaveChangesAsync();
+        
+        await _context.Entry(enrollment).Reference(e => e.classroom).LoadAsync();
         
         return enrollment;
+    }
+
+    public async Task<Enrollment> GetEnrollmentAsync(Guid classId, Guid userId)
+    {
+        return await _context.Enrollments
+            .Include(e => e.classroom!)
+            .Include(e => e.user!)
+            .FirstOrDefaultAsync(e => e.class_id == classId && e.user_id == userId);
     }
 
     /// <summary>
@@ -57,12 +54,13 @@ public class EnrollmentRepository : IEnrollmentRepository
     /// </summary>
     /// <param name="userId">The ID of the user</param>
     /// <returns>Collection of active Enrollment entities with classroom information</returns>
-    public async Task<IEnumerable<Enrollment>> GetUserEnrollmentAsync(Guid userId)
+    public async Task<IEnumerable<Enrollment>> GetUserEnrollmentsAsync(Guid userId)
     {
         // Query active enrollments for the user with classroom details
         return await _context.Enrollments
+            .Include(e => e.classroom!)
+                .ThenInclude(c => c.user!)
             .Where(e => e.user_id == userId)
-            .Include(e => e.classroom)
             .ToListAsync();
     }
 
@@ -89,6 +87,20 @@ public class EnrollmentRepository : IEnrollmentRepository
     }
 
     /// <summary>
+    /// Gets all the enrolled users in a classroom
+    /// </summary>
+    /// <param name="classId">The ID of the classroom</param>
+    /// <param name="isApproved">Fetch only approved (true) or pending (false) enrollments</param>
+    /// <returns>Collection of enrolled users</returns>
+    public async Task<IEnumerable<Enrollment>> GetClassroomEnrollmentsAsync(Guid classId, string status)
+    {
+        return await _context.Enrollments
+            .Include(e => e.user)
+            .Where(e => e.class_id == classId && e.enroll_status == status)
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// Updates the enrollment status for a student in a classroom
     /// Toggles between 'active' and 'inactive' states
     /// </summary>
@@ -96,21 +108,14 @@ public class EnrollmentRepository : IEnrollmentRepository
     /// <param name="userId">The ID of the student</param>
     /// <returns>The updated Enrollment entity with new status</returns>
     /// <exception cref="KeyNotFoundException">Thrown if enrollment record is not found</exception>
-    public async Task<Enrollment> UpdateEnrollmentStatusAsync(Guid classId, Guid userId)
+    public async Task UpdateEnrollmentAsync()
     {
-        // Find the enrollment record
-        var enrollment = await _context.Enrollments
-            .FirstOrDefaultAsync(e => e.class_id == classId && e.user_id == userId);
-
-        if (enrollment == null)
-        {
-            throw new KeyNotFoundException("Student is not enrolled in this class.");
-        }
-
-        // Toggle enrollment status between active and inactive
-        enrollment.enroll_is_approved = !enrollment.enroll_is_approved;
         await _context.SaveChangesAsync();
+    }
 
-        return enrollment;
+    public async Task DeleteEnrollmentAsync(Enrollment enrollment)
+    {
+        _context.Enrollments.Remove(enrollment);
+        await _context.SaveChangesAsync();
     }
 }

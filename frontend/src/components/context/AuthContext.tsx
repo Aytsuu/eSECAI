@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { UserProfile } from "../../types/auth";
 import { AuthService } from "@/services/auth.service";
 import { redirect } from "next/navigation";
+import { queryError } from "@/helpers/errorDisplay";
 
 interface AuthContextType {
   user: UserProfile;
@@ -40,12 +41,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({
           userId: me.userId,
           email: me.email,
-          
           displayName: me.displayName,
           displayImage: me.displayImage
         });
-      } catch (err) {
-        setUser(null)
+      } catch (err: any) {
+        queryError(err);
+        setUser(null);
       } finally {
         // Do nothing, let it finish 
       }

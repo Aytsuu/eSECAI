@@ -5,9 +5,12 @@ namespace eSECAI.Application.Interfaces;
 
 public interface IEnrollmentRepository
 {
-    Task<Enrollment> AddEnrollmentAsync(Enrollment enrollment);
-    Task<IEnumerable<Enrollment>> GetUserEnrollmentAsync(Guid userId);
+    Task<Enrollment> CreateEnrollmentAsync(Enrollment enrollment);
+    Task<Enrollment> GetEnrollmentAsync(Guid classId, Guid userId);
+    Task<IEnumerable<Enrollment>> GetUserEnrollmentsAsync(Guid userId);
     Task<bool> CheckUserEnrollment(Guid classId, Guid userId);
-    Task<Enrollment> UpdateEnrollmentStatusAsync(Guid classId, Guid userId);
+    Task<IEnumerable<Enrollment>> GetClassroomEnrollmentsAsync(Guid classId, string status);
+    Task UpdateEnrollmentAsync();
     Task<bool> ClassHasEnrolledUser(Guid classId);
+    Task DeleteEnrollmentAsync(Enrollment enrollment);
 }

@@ -15,7 +15,7 @@ import { loginSchema } from "../../../schemas/auth.schema";
 import { useForm } from "react-hook-form";
 import { Button } from "../../../components/ui/button";
 import React from "react";
-import { useLogin } from "../../../hooks/useAuth";
+import { useLogin } from "../../../hooks/use-auth";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 import { api } from "@/services/api.service";

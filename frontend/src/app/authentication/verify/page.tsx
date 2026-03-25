@@ -21,7 +21,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useResendOtp, useVerifyEmail } from "@/hooks/useAuth";
+import { useResendOtp, useVerifyEmail } from "@/hooks/use-auth";
 import axios from "axios";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Loader2, RefreshCwIcon } from "lucide-react";

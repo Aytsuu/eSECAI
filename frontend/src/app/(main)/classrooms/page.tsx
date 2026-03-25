@@ -4,9 +4,11 @@ import {
   Plus,
   BookOpen,
   GraduationCap,
-  ChevronRight,
   LogIn,
   X,
+  Clock,
+  ChevronRight,
+  Inbox,
 } from "lucide-react";
 import { useAuth } from "@/components/context/AuthContext";
 import { Dialog, DialogFooter, DialogHeader } from "@/components/ui/dialog";
@@ -32,204 +34,138 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import {
   useCreateClassroom,
-  useGetClassroomsByCreator,
-} from "@/hooks/useClassroom";
+  useGetCreatedClassrooms,
+} from "@/hooks/use-classroom";
 import { ClassroomData } from "@/types/classroom";
 import { enrollmentSchema } from "@/schemas/enrollment.schema";
 import {
   useCreateEnrollment,
-  useGetEnrolledClasses,
-} from "@/hooks/useEnrollment";
+  useCancelEnrollmentRequest,
+  useGetAcceptedEnrollments,
+  useGetPendingEnrollments,
+} from "@/hooks/use-enrollment";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import ClassroomForm from "./ClassroomForm";
+import { formatDistanceToNow } from "date-fns";
+import { PendingEnrollments } from "@/types/enrollment";
+import { queryError } from "@/helpers/errorDisplay";
+import { useRouter, useSearchParams } from "next/navigation";
 
-// Palette constants
-const CARD_PALETTE = [
-  { bg: "from-violet-600 to-indigo-700", accent: "bg-violet-500" },
-  { bg: "from-rose-500 to-pink-700", accent: "bg-rose-400" },
-  { bg: "from-emerald-500 to-teal-700", accent: "bg-emerald-400" },
-  { bg: "from-amber-500 to-orange-600", accent: "bg-amber-400" },
-  { bg: "from-sky-500 to-blue-700", accent: "bg-sky-400" },
-  { bg: "from-fuchsia-500 to-purple-700", accent: "bg-fuchsia-400" },
-];
+// ─── Section types ────────────────────────────────────────────────────────────
+type Section = "teaching" | "enrolled";
 
-function getCardColor(id: string) {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++)
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  return CARD_PALETTE[Math.abs(hash) % CARD_PALETTE.length];
-}
-
+// ─── Card Components ──────────────────────────────────────────────────────────
 function OwnedClassroomCard({ classroom }: { classroom: ClassroomData }) {
-  const color = getCardColor(classroom.classId);
   const classNameUrl = classroom.className
     .split(" ")
     .map((c) => c.toLowerCase())
     .join("-");
 
   return (
-    <Link
-      href={`/classrooms/${classNameUrl}?id=${classroom.classId}`}
-      className="group block"
-    >
-      <div className="relative overflow-hidden shadow-md hover:shadow-xl border bg-background transition-all duration-300 hover:-translate-y-1 cursor-pointer rounded-2xl">
-        <img
-          className="absolute inset-0 opacity-10"
-          src={"/assets/classroom_card_bg.jpeg"}
-        />
-
-        {/* Header Banner */}
-        <div
-          className={`relative bg-linear-to-br ${color.bg} p-4 flex items-end overflow-hidden`}
+    <Card className="relative mx-auto w-full pt-0 overflow-hidden group hover:shadow-md transition-shadow duration-200">
+      <div className="absolute inset-0 z-30 aspect-video bg-black/35" />
+      <img
+        src={`${classroom.classBanner ? process.env.NEXT_PUBLIC_FILE_BUCKET + "/" + classroom.classBanner : "https://avatar.vercel.sh/shadcn1"}`}
+        alt="Classroom Banner"
+        className="relative z-20 aspect-video w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+      />
+      <CardHeader>
+        <CardTitle className="line-clamp-1">{classroom.className}</CardTitle>
+        <CardDescription className="line-clamp-2">
+          {classroom.classDescription || "No description provided."}
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <Link
+          href={`/classrooms/${classNameUrl}?id=${classroom.classId}`}
+          className="w-full"
         >
-          <div
-            className="absolute inset-0 opacity-10"
-            style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, white 1px, transparent 1px),
-                radial-gradient(circle at 80% 20%, white 1px, transparent 1px)`,
-              backgroundSize: "40px 40px",
-            }}
-          />
-          <img
-            className="absolute inset-0 z-1"
-            src={`${process.env.NEXT_PUBLIC_FILE_BUCKET}/${classroom.classBanner}`}
-          />
-          <div className="relative z-10 flex items-center justify-between w-full">
-            <div>
-              <Badge
-                variant="secondary"
-                className="text-[10px] font-semibold bg-white/20 text-white border-0 backdrop-blur-sm mb-1"
-              >
-                Created by you
-              </Badge>
-              <h3 className="text-white font-bold text-lg leading-tight line-clamp-1 drop-shadow">
-                {classroom.className}
-              </h3>
-            </div>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="pt-3 pb-2 px-4">
-          <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
-            {classroom.classDescription || "No description provided."}
-          </p>
-        </div>
-
-        <div className="px-4 py-3 flex items-center justify-between border-t border-border/50">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span>View Classroom</span>
-          </div>
-          <ChevronRight
-            size={15}
-            className="text-muted-foreground group-hover:translate-x-0.5 transition-transform"
-          />
-        </div>
-      </div>
-    </Link>
+          <Button className="w-full">View Classroom</Button>
+        </Link>
+      </CardFooter>
+    </Card>
   );
 }
 
 function EnrolledClassroomCard({ classroom }: { classroom: ClassroomData }) {
-  const color = getCardColor(classroom.classId);
   const creatorName = classroom.creator?.displayName || "Unknown";
   const creatorImage = classroom.creator?.displayImage;
   const creatorInitial = creatorName.charAt(0).toUpperCase();
+  const classNameUrl = classroom.className
+    .split(" ")
+    .map((c) => c.toLowerCase())
+    .join("-");
 
   return (
-    <Link href={`/classrooms/${classroom.classId}`} className="group block">
-      <Card className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer rounded-2xl">
-        {/* Header Banner */}
-        <div
-          className={`relative h-28 bg-linear-to-br ${color.bg} p-4 flex items-end`}
-        >
-          <div
-            className="absolute inset-0 opacity-10"
-            style={{
-              backgroundImage: `radial-gradient(circle at 20% 50%, white 1px, transparent 1px),
-                radial-gradient(circle at 80% 20%, white 1px, transparent 1px)`,
-              backgroundSize: "40px 40px",
-            }}
-          />
-          <div className="relative z-10 flex items-center justify-between w-full">
-            <div className="flex-1 min-w-0 pr-2">
-              <Badge
-                variant="secondary"
-                className="text-[10px] font-semibold bg-white/20 text-white border-0 backdrop-blur-sm mb-1"
-              >
-                Enrolled
-              </Badge>
-              <h3 className="text-white font-bold text-lg leading-tight line-clamp-1 drop-shadow">
-                {classroom.className}
-              </h3>
-            </div>
-            {/* Creator avatar in top-right of banner */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Avatar className="w-10 h-10 border-2 border-white/60 shadow-md shrink-0">
-                    <AvatarImage src={creatorImage} alt={creatorName} />
-                    <AvatarFallback className="text-sm font-bold bg-white/30 text-white">
-                      {creatorInitial}
-                    </AvatarFallback>
-                  </Avatar>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="text-xs">
-                  <p className="font-semibold">{creatorName}</p>
-                  <p className="text-muted-foreground">Instructor</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+    <Card className="relative mx-auto w-full pt-0 overflow-hidden group hover:shadow-md transition-shadow duration-200">
+      <div className="absolute inset-0 z-30 aspect-video bg-black/35" />
+      <img
+        src={`${classroom.classBanner ? process.env.NEXT_PUBLIC_FILE_BUCKET + "/" + classroom.classBanner : "https://avatar.vercel.sh/shadcn1"}`}
+        alt="Classroom Banner"
+        className="relative z-20 aspect-video w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+      />
+      <CardHeader>
+        <div className="flex items-center justify-between mb-1">
+          <Badge variant="secondary" className="text-[10px]">
+            Enrolled
+          </Badge>
         </div>
-
-        {/* Body */}
-        <CardContent className="pt-3 pb-2 px-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Avatar className="w-5 h-5">
-              <AvatarImage src={creatorImage} alt={creatorName} />
-              <AvatarFallback className="text-[10px]">
-                {creatorInitial}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xs text-muted-foreground font-medium">
-              {creatorName}
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2 min-h-10">
-            {classroom.classDescription || "No description provided."}
-          </p>
-        </CardContent>
-
-        <CardFooter className="px-4 py-3 flex items-center justify-between border-t border-border/50">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <GraduationCap size={13} />
-            <span>View coursework</span>
-          </div>
-          <ChevronRight
-            size={15}
-            className="text-muted-foreground group-hover:translate-x-0.5 transition-transform"
-          />
-        </CardFooter>
-      </Card>
-    </Link>
+        <CardTitle className="line-clamp-1">{classroom.className}</CardTitle>
+        <CardDescription className="line-clamp-2">
+          {classroom.classDescription || "No description provided."}
+        </CardDescription>
+      </CardHeader>
+      <CardFooter className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Avatar className="w-6 h-6">
+            <AvatarImage src={creatorImage} alt={creatorName} />
+            <AvatarFallback className="text-[10px]">
+              {creatorInitial}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-muted-foreground truncate max-w-20">
+            {creatorName}
+          </span>
+        </div>
+        <Link href={`/classrooms/${classNameUrl}?id=${classroom.classId}`}>
+          <Button size="sm">View Class</Button>
+        </Link>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -237,28 +173,251 @@ function EmptyState({
   icon: Icon,
   title,
   description,
+  action,
 }: {
   icon: any;
   title: string;
   description: string;
+  action?: React.ReactNode;
 }) {
   return (
-    <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+    <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
       <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
         <Icon size={28} className="text-muted-foreground" />
       </div>
       <h3 className="font-semibold text-base mb-1">{title}</h3>
-      <p className="text-sm text-muted-foreground max-w-xs">{description}</p>
+      <p className="text-sm text-muted-foreground max-w-xs mb-4">
+        {description}
+      </p>
+      {action}
     </div>
   );
 }
 
+// ─── Pending Requests Sidebar ─────────────────────────────────────────────────
+function PendingRequestsSidebar({
+  requests,
+  isOpen,
+  onToggle,
+  cancelQueue,
+  onCancel,
+}: {
+  requests: PendingEnrollments[];
+  isOpen: boolean;
+  onToggle: () => void;
+  cancelQueue: string[];
+  onCancel: (classId: string) => void;
+}) {
+  return (
+    <div
+      className={`
+        relative flex flex-col border-l border-border/50 bg-background/80 backdrop-blur-sm
+        transition-all duration-300 ease-in-out shrink-0
+        ${isOpen ? "w-72" : "w-10"}
+      `}
+    >
+      {/* Toggle button */}
+      <button
+        onClick={onToggle}
+        className="absolute -left-3.5 top-6 z-10 w-7 h-7 rounded-full border border-border/60 bg-background shadow-sm flex items-center justify-center hover:bg-muted transition-colors"
+        aria-label={
+          isOpen ? "Collapse requests panel" : "Expand requests panel"
+        }
+      >
+        <ChevronRight
+          size={14}
+          className={`text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {/* Collapsed label */}
+      {!isOpen && (
+        <div className="flex flex-col items-center pt-16 gap-2">
+          <span
+            className="text-[10px] font-semibold text-muted-foreground tracking-widest uppercase"
+            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+          >
+            Pending
+          </span>
+          {requests.length > 0 && (
+            <Badge className="text-[9px] h-4 px-1 bg-amber-500 hover:bg-amber-500 text-white border-0">
+              {requests.length}
+            </Badge>
+          )}
+        </div>
+      )}
+
+      {/* Expanded panel */}
+      {isOpen && (
+        <div className="flex flex-col h-full overflow-hidden">
+          <div className="px-4 pt-5 pb-3 border-b border-border/40 flex items-center gap-2 shrink-0">
+            <Inbox size={14} className="text-muted-foreground" />
+            <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase flex-1">
+              Pending Requests
+            </p>
+            {requests.length > 0 && (
+              <Badge className="text-[10px] h-4 px-1.5 bg-amber-500 hover:bg-amber-500 text-white border-0">
+                {requests.length}
+              </Badge>
+            )}
+          </div>
+
+          <ScrollArea className="flex-1 px-3 py-3">
+            {requests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                  <Clock size={16} className="text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  No pending requests
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {requests.map((request) => (
+                  <div
+                    key={request.classId}
+                    className="flex items-start gap-2.5 p-2.5 rounded-xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-foreground line-clamp-1">
+                        {request.className}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {formatDistanceToNow(new Date(request.enrollAt), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              disabled={cancelQueue.includes(request.classId)}
+                              className="cursor-pointer w-6 h-6 shrink-0 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-colors disabled:opacity-40"
+                            >
+                              <X size={11} />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="text-xs">
+                            Withdraw request
+                          </TooltipContent>
+                        </Tooltip>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-2xl">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Withdraw request?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            You'll be removed from the waitlist for{" "}
+                            <span className="font-medium text-foreground">
+                              {request.className}
+                            </span>
+                            .
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Keep it</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={() => onCancel(request.classId)}
+                          >
+                            Withdraw
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Section Nav ──────────────────────────────────────────────────────────────
+function SectionNav({
+  active,
+  onChange,
+  ownedCount,
+  enrolledCount,
+}: {
+  active: Section;
+  onChange: (s: Section) => void;
+  ownedCount: number;
+  enrolledCount: number;
+}) {
+  const items: { id: Section; label: string; icon: any; count: number }[] = [
+    {
+      id: "teaching",
+      label: "My Classrooms",
+      icon: BookOpen,
+      count: ownedCount,
+    },
+    {
+      id: "enrolled",
+      label: "Enrolled",
+      icon: GraduationCap,
+      count: enrolledCount,
+    },
+  ];
+
+  return (
+    <nav className="flex items-center gap-1 bg-muted/50 rounded-xl p-1 w-fit">
+      {items.map(({ id, label, icon: Icon, count }) => (
+        <button
+          key={id}
+          onClick={() => onChange(id)}
+          className={`
+            relative cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+            ${
+              active === id
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+            }
+          `}
+        >
+          <Icon size={14} />
+          {label}
+          {count > 0 && (
+            <Badge
+              variant={active === id ? "secondary" : "outline"}
+              className="ml-0.5 px-1.5 py-0 text-[10px] h-4 min-w-4 justify-center"
+            >
+              {count}
+            </Badge>
+          )}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default () => {
   const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const createClassroomForm = useForm<z.infer<typeof classroomSchema>>({
+  // Persist active section in URL so reload keeps position
+  const sectionParam = searchParams.get("section") as Section | null;
+  const [activeSection, setActiveSection] = React.useState<Section>(
+    sectionParam === "enrolled" ? "enrolled" : "teaching",
+  );
+
+  const handleSectionChange = (s: Section) => {
+    setActiveSection(s);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("section", s);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
+  const createClassForm = useForm<z.infer<typeof classroomSchema>>({
     resolver: zodResolver(classroomSchema),
-    defaultValues: { name: "", description: "" },
+    defaultValues: { name: "", description: "", bannerFile: "" },
   });
 
   const enrollClassForm = useForm<z.infer<typeof enrollmentSchema>>({
@@ -272,52 +431,48 @@ export default () => {
   const [isOpenEnrollClass, setIsOpenEnrollClass] =
     React.useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
+  const [cancelQueue, setCancelQueue] = React.useState<string[]>([]);
+  const [isPendingPanelOpen, setIsPendingPanelOpen] =
+    React.useState<boolean>(true);
 
   const { mutateAsync: createClassroom } = useCreateClassroom();
   const { mutateAsync: createEnrollment } = useCreateEnrollment();
-  const { data: classroomsByCreator } = useGetClassroomsByCreator(user?.userId); // Created classes
-  const { data: enrollmentsByUserId } = useGetEnrolledClasses(user?.userId); // Enrolled classes
+  const { mutateAsync: cancelEnrollment } = useCancelEnrollmentRequest();
+  const { data: createdClassrooms } = useGetCreatedClassrooms();
+  const { data: acceptedEnrollments } = useGetAcceptedEnrollments();
+  const { data: pendingEnrollments } = useGetPendingEnrollments();
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const handleCreateClassroom = async () => {
+    if (!(await createClassForm.trigger())) return;
     try {
       setIsSubmitting(true);
-      const values = createClassroomForm.getValues();
-
-      // Initialize FormData
+      const values = createClassForm.getValues();
       const formData = new FormData();
-
-      // Append values
       formData.append("userId", user?.userId);
       formData.append("name", values.name);
       formData.append("description", values.description);
-
-      if (values.bannerFile) {
-        formData.append("bannerFile", values.bannerFile);
-      }
-
+      if (values.bannerFile) formData.append("bannerFile", values.bannerFile);
       await createClassroom(formData);
-    } catch {
-      alert("Failed to create classroom. Please try again.");
+    } catch (err: any) {
+      queryError(err);
     } finally {
       setIsSubmitting(false);
       setIsOpenCreateClassroom(false);
-      createClassroomForm.reset();
+      createClassForm.reset();
     }
   };
 
   const handleEnrollClass = async () => {
+    if (!(await enrollClassForm.trigger())) return;
     try {
       setIsSubmitting(true);
-      await createEnrollment({
-        ...enrollClassForm.getValues(),
-        userId: user?.userId,
-      });
-    } catch {
-      alert("Failed to join classroom. Please try again.");
+      await createEnrollment(enrollClassForm.getValues().classId);
+    } catch (err: any) {
+      queryError(err);
     } finally {
       setIsSubmitting(false);
       setIsOpenEnrollClass(false);
@@ -325,109 +480,138 @@ export default () => {
     }
   };
 
+  const handleCancelRequest = async (classId: string) => {
+    try {
+      setCancelQueue((prev) => [...prev, classId]);
+      await cancelEnrollment(classId);
+    } catch {
+      // handle
+    } finally {
+      setCancelQueue((prev) => prev.filter((id) => id !== classId));
+    }
+  };
+
   if (!isMounted) return null;
 
-  const ownedCount = classroomsByCreator?.length ?? 0;
-  const enrolledCount = enrollmentsByUserId?.length ?? 0;
+  const ownedCount = createdClassrooms?.length ?? 0;
+  const enrolledCount = acceptedEnrollments?.length ?? 0;
+  const pendingList: PendingEnrollments[] = pendingEnrollments ?? [];
+
+  // Only show pending sidebar on the enrolled tab
+  const showPendingSidebar = activeSection === "enrolled";
 
   return (
     <>
-      {/* Tabs */}
-      <Tabs defaultValue="teaching" className="w-full">
-        <div className="flex items-center justify-between mb-6">
-          <TabsList className="h-10">
-            <TabsTrigger value="teaching" className="gap-2 px-5 cursor-pointer">
-              <BookOpen size={14} />
-              My Classroom
-              {ownedCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="ml-1 px-1.5 py-0 text-[10px] h-4 min-w-4 justify-center"
+      {/* ── Outer layout: content + collapsible sidebar ── */}
+      <div className="flex h-full min-h-0 overflow-hidden">
+        {/* ── Main content ── */}
+        <div className="flex-1 overflow-y-auto p-4 lg:p-5 pb-16">
+          {/* ── Header row ── */}
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <SectionNav
+              active={activeSection}
+              onChange={handleSectionChange}
+              ownedCount={ownedCount}
+              enrolledCount={enrolledCount}
+            />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <Plus size={15} />
+                  <span className="hidden sm:inline">Add</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem
+                  className="flex items-center gap-2 cursor-pointer py-2.5"
+                  onSelect={() => setIsOpenCreateClassroom(true)}
                 >
-                  {ownedCount}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="enrolled" className="gap-2 px-5 cursor-pointer">
-              <GraduationCap size={14} />
-              Enrolled
-              {enrolledCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="ml-1 px-1.5 py-0 text-[10px] h-4 min-w-4 justify-center"
+                  <BookOpen size={15} />
+                  Create class
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="flex items-center gap-2 cursor-pointer py-2.5"
+                  onSelect={() => setIsOpenEnrollClass(true)}
                 >
-                  {enrolledCount}
-                </Badge>
+                  <LogIn size={15} />
+                  Join class
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* ── Teaching section ── */}
+          {activeSection === "teaching" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {ownedCount === 0 ? (
+                <EmptyState
+                  icon={BookOpen}
+                  title="No classrooms yet"
+                  description="Create your first classroom and start teaching."
+                  action={
+                    <Button
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => setIsOpenCreateClassroom(true)}
+                    >
+                      <Plus size={14} /> Create classroom
+                    </Button>
+                  }
+                />
+              ) : (
+                createdClassrooms?.map(
+                  (classroom: ClassroomData, i: number) => (
+                    <OwnedClassroomCard key={i} classroom={classroom} />
+                  ),
+                )
               )}
-            </TabsTrigger>
-          </TabsList>
-          {/* Plus FAB with Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant={"outline"}>
-                <Plus size={20} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                className="flex items-center gap-2 cursor-pointer py-2.5"
-                onSelect={() => setIsOpenCreateClassroom(true)}
-              >
-                <BookOpen size={15} />
-                <span>Create class</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="flex items-center gap-2 cursor-pointer py-2.5"
-                onSelect={() => setIsOpenEnrollClass(true)}
-              >
-                <LogIn size={15} />
-                <span>Join class</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+          )}
+
+          {/* ── Enrolled section ── */}
+          {activeSection === "enrolled" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {enrolledCount === 0 ? (
+                <EmptyState
+                  icon={GraduationCap}
+                  title="Not enrolled yet"
+                  description="Join a class using an invite code to get started."
+                  action={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => setIsOpenEnrollClass(true)}
+                    >
+                      <LogIn size={14} /> Join a class
+                    </Button>
+                  }
+                />
+              ) : (
+                acceptedEnrollments?.map(
+                  (classroom: ClassroomData, i: number) => (
+                    <EnrolledClassroomCard key={i} classroom={classroom} />
+                  ),
+                )
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Teaching Tab */}
-        <TabsContent value="teaching">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {ownedCount === 0 ? (
-              <EmptyState
-                icon={BookOpen}
-                title="No classes yet"
-                description="Create your first classroom and start teaching."
-              />
-            ) : (
-              classroomsByCreator?.map(
-                (classroom: ClassroomData, index: number) => (
-                  <OwnedClassroomCard key={index} classroom={classroom} />
-                ),
-              )
-            )}
-          </div>
-        </TabsContent>
+        {/* ── Collapsible pending requests sidebar (enrolled tab only) ── */}
+        {showPendingSidebar && (
+          <PendingRequestsSidebar
+            requests={pendingList}
+            isOpen={isPendingPanelOpen}
+            onToggle={() => setIsPendingPanelOpen((prev) => !prev)}
+            cancelQueue={cancelQueue}
+            onCancel={handleCancelRequest}
+          />
+        )}
+      </div>
 
-        {/* Enrolled Tab */}
-        <TabsContent value="enrolled">
-          <div className="grid grid-cols-1 sm:grid-cols-23 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {enrolledCount === 0 ? (
-              <EmptyState
-                icon={GraduationCap}
-                title="Not enrolled in any class"
-                description="Join a class using an invite code to get started."
-              />
-            ) : (
-              enrollmentsByUserId?.map((classroom: ClassroomData) => (
-                <EnrolledClassroomCard
-                  key={classroom.classId}
-                  classroom={classroom}
-                />
-              ))
-            )}
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {/* Create Classroom Dialog */}
+      {/* ── Create Classroom Dialog ── */}
       <Dialog
         open={isOpenCreateClassroom}
         onOpenChange={setIsOpenCreateClassroom}
@@ -442,9 +626,7 @@ export default () => {
               Fill in the details to set up your new classroom.
             </DialogDescription>
           </DialogHeader>
-
-          <ClassroomForm form={createClassroomForm} />
-
+          <ClassroomForm form={createClassForm} />
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
@@ -464,7 +646,7 @@ export default () => {
         </DialogContent>
       </Dialog>
 
-      {/* Join Classroom Dialog */}
+      {/* ── Join Classroom Dialog ── */}
       <Dialog open={isOpenEnrollClass} onOpenChange={setIsOpenEnrollClass}>
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>

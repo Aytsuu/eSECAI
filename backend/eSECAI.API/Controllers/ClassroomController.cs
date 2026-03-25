@@ -97,9 +97,9 @@ public class ClassroomsController : ControllerBase
 
             return Ok(classroom);
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ioEx)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(ioEx.Message);
         }
     }
 
@@ -153,11 +153,20 @@ public class ClassroomsController : ControllerBase
     /// <response code="400">Invalid user ID or retrieval failed</response>
     /// <response code="401">User is not authenticated</response>
     [Authorize]
-    [HttpGet("get/creator-{userId}")]
-    public async Task<IActionResult> GetClassroomsByCreator(Guid userId)
+    [HttpGet("get")]
+    public async Task<IActionResult> GetCreatedClassrooms()
     {
         try
         {
+            // Extract userId string from access token
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            // Safely parse to string to type Guid
+            if (!Guid.TryParse(userIdString, out Guid userId))
+            {
+                return Unauthorized(new { message = "Invalid or missing user ID in token." });
+            }
+
             var classrooms = await _getUseCase.ExecuteGetByCreatorAsync(userId);
             return Ok(classrooms);
         }
@@ -183,11 +192,20 @@ public class ClassroomsController : ControllerBase
     /// <response code="400">Invalid request parameters</response>
     /// <response code="401">User is not authenticated</response>
     [Authorize]
-    [HttpGet("get/{classId}/{userId}")]
-    public async Task<IActionResult> GetClassroomData(Guid classId, Guid userId)
+    [HttpGet("get/{classId}")]
+    public async Task<IActionResult> GetClassroomData(Guid classId)
     {
         try
         {
+            // Extract userId string from access token
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            // Safely parse to string to type Guid
+            if (!Guid.TryParse(userIdString, out Guid userId))
+            {
+                return Unauthorized(new { message = "Invalid or missing user ID in token." });
+            }
+
             var classroom = await _getUseCase.ExecuteGetClassroomDataAsync(classId, userId);
             return Ok(classroom);
         }
@@ -197,7 +215,7 @@ public class ClassroomsController : ControllerBase
         }
         catch (UnauthorizedAccessException uaEx)
         {
-            return Forbid(uaEx.Message);
+            return Unauthorized(uaEx.Message);
         }
         catch (Exception ex)
         {

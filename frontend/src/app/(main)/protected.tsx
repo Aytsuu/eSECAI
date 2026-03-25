@@ -2,21 +2,26 @@
 
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React from "react";
 import { toast } from "sonner";
 
 export default function Protected({children, error} : {children: React.ReactNode; error: any}) {
   const router = useRouter();
+  const [isMounted, setIsMounted] = React.useState<boolean>(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  React.useEffect(() => {
     if (axios.isAxiosError(error) && error.response) {
       const status = error.response.status;
-      if (status === 404) {
+      if (status === 401) {
         toast.error("Page not found");
-        return router.replace("/dashboard");
+        router.replace("/authentication/login");
       }
     }
-  }, [error])
+  }, [isMounted, error])
 
   return children
 }

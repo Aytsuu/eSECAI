@@ -4,7 +4,7 @@ import { api } from "./api.service";
 export const ClassroomService = {
   create: async (data: FormData) => {
     try {
-      const res = await api.post('api/classroom/create', data, {
+      const res = await api.post<ClassroomData>('api/classroom/create', data, {
         headers: {
           "Content-Type" : "multipart/form-data"
         }
@@ -14,17 +14,17 @@ export const ClassroomService = {
       throw err;
     }
   },
-  getByCreator: async (userId: string) => {
+  getCreatedClassrooms: async () => {
     try {
-      const res = await api.get<ClassroomData[]>(`api/classroom/get/creator-${userId}`)
+      const res = await api.get<ClassroomData[]>(`api/classroom/get`)
       return res.data;
     } catch (err) {
       throw err;
     }
   },
-  getData: async (classId: string, userId: string) => {
+  getData: async (classId: string) => {
     try {
-      const res = await api.get<ClassroomData>(`api/classroom/get/${classId}/${userId}`);
+      const res = await api.get<ClassroomData>(`api/classroom/get/${classId}`);
       return res.data;
     } catch (err) {
       throw err;
@@ -40,7 +40,7 @@ export const ClassroomService = {
   },
   update: async (classId: string, data: FormData) => {
     try {
-      const res = await api.patch(`api/classroom/patch/${classId}`, data, {
+      const res = await api.patch<ClassroomData>(`api/classroom/patch/${classId}`, data, {
         headers: {
           "Content-Type": "multipart/form-data"
         }

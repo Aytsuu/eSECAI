@@ -12,9 +12,7 @@ export interface ClassroomData {
   classDescription: string;
   classCreatedAt: string;
   classBanner: string;
-  creator?: UserProfile;
-  enrolled_users: UserProfile[]
-  posts?: Post[] 
+  creator?: UserProfile
 }
 
 interface Post {

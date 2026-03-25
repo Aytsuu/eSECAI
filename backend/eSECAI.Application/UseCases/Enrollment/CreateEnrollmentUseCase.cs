@@ -1,5 +1,6 @@
 using eSECAI.Application.Interfaces;
 using eSECAI.Domain.Entities;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.Application.UseCases.Enrollments;
 
@@ -28,12 +29,32 @@ public class CreateEnrollmentUseCase
     /// <param name="dto">CreateEnrollmentDto containing classId and userId</param>
     /// <returns>The Enrollment entity (newly created or reactivated)</returns>
     /// <exception cref="DomainException">Thrown if enrollment data fails domain validation</exception>
-    public Task<Enrollment> ExecuteAsync(CreateEnrollmentDto dto)
+    public async Task<PendingEnrollment> ExecuteCreateEnrollmentAsync(Guid classId, Guid userId)
     {
         // Create enrollment with domain validation
-        var enrollment = Enrollment.Build(dto.classId, dto.userId);
-        
+        Enrollment enrollment;
+        Enrollment hasEnrollment = await _repository.GetEnrollmentAsync(classId, userId);
+
+        if (hasEnrollment == null)
+        {
+            Enrollment instance = Enrollment.Build(classId, userId);
+            enrollment = await _repository.CreateEnrollmentAsync(instance);
+
+            if (enrollment == null)
+            {
+                throw new InvalidOperationException();
+            }
+        }
+        else
+        {
+            enrollment = hasEnrollment;
+        }
+
         // Persist to database - repository handles duplicate enrollment logic
-        return _repository.AddEnrollmentAsync(enrollment);
+        return new PendingEnrollment(
+            enrollment.classroom!.class_id,
+            enrollment.enroll_created_at,
+            enrollment.classroom!.class_name
+        );
     }
 }

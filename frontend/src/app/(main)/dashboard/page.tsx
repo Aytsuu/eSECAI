@@ -140,7 +140,7 @@ export default () => {
   }, []);
 
   return (
-    <div className="text-slate-200">
+    <div className="text-slate-200 p-5">
       {/* ── KPI Row ── */}
       <div className="grid grid-cols-4 gap-4 mb-5">
         <StatCard icon={DollarSign}   label="Total Revenue" value="$62,430" delta={12.4} deltaLabel="vs last mo." iconClass="text-indigo-400" iconBgClass="bg-indigo-500/10" />

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using eSECAI.Infrastructure.Data;
@@ -11,9 +12,11 @@ using eSECAI.Infrastructure.Data;
 namespace eSECAI.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260325071921_AddedEnrollmentStatus")]
+    partial class AddedEnrollmentStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,6 +79,11 @@ namespace eSECAI.Infrastructure.Migrations
 
                     b.Property<DateTime>("enroll_created_at")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("enroll_is_approved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("enroll_status")
                         .IsRequired()

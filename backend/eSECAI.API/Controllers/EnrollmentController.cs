@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using eSECAI.Application.UseCases.Enrollments;
+using eSECAI.Application.DTOs;
+using System.Security.Claims;
 
 namespace eSECAI.API.Controllers;
 
@@ -17,6 +19,8 @@ public class EnrollmentController : ControllerBase
     private readonly CreateEnrollmentUseCase _createUseCase;
     private readonly GetEnrollmentUseCase _getUseCase;
     private readonly UpdateEnrollmentUseCase _updateUseCase;
+    private readonly DeleteEnrollmentUseCase _deleteUseCase;
+    private readonly GetClassroomEnrollmentsUseCase _getClassEnrollmentsUseCase;
 
     /// <summary>
     /// Initializes the EnrollmentController with required use cases
@@ -24,11 +28,19 @@ public class EnrollmentController : ControllerBase
     /// <param name="createUseCase">Use case for creating/enrolling in classrooms</param>
     /// <param name="getUseCase">Use case for retrieving student enrollments</param>
     /// <param name="updateUseCase">Use case for updating enrollment status</param>
-    public EnrollmentController(CreateEnrollmentUseCase createUseCase, [FromServices]  GetEnrollmentUseCase getUseCase, UpdateEnrollmentUseCase updateUseCase)
+    public EnrollmentController(
+        CreateEnrollmentUseCase createUseCase, 
+        GetEnrollmentUseCase getUseCase, 
+        UpdateEnrollmentUseCase updateUseCase,
+        DeleteEnrollmentUseCase deleteUseCase,
+        GetClassroomEnrollmentsUseCase getClassEnrollmentsUseCase
+    )
     {
         _createUseCase = createUseCase;
         _getUseCase = getUseCase;
         _updateUseCase = updateUseCase;
+        _deleteUseCase = deleteUseCase;
+        _getClassEnrollmentsUseCase = getClassEnrollmentsUseCase;
     }
 
     /// <summary>
@@ -46,7 +58,14 @@ public class EnrollmentController : ControllerBase
     {
         try
         {
-            var enrollment = await _createUseCase.ExecuteAsync(request);
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdString, out Guid userId))
+            {
+                return Unauthorized(new { message = "Invalid or missing user ID in token." });
+            }
+
+            var enrollment = await _createUseCase.ExecuteCreateEnrollmentAsync(request.classId, userId);
             return Ok(enrollment);
         }
         catch (Exception ex)
@@ -65,12 +84,22 @@ public class EnrollmentController : ControllerBase
     /// <response code="400">Invalid user ID or retrieval failed</response>
     /// <response code="401">User is not authenticated</response>
     [Authorize]
-    [HttpGet("get/{userId}")]
-    public async Task<IActionResult> GetStudentEnrollments(Guid userId)
+    [HttpGet("get")]
+    public async Task<IActionResult> GetEnrollments([FromQuery] string status)
     {
         try
         {
-            var enrollments = await _getUseCase.ExecuteGetUserEnrollmentAsync(userId);
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdString, out Guid userId))
+            {
+                return Unauthorized(new { message = "Invalid or missing user ID in token." });
+            }
+            
+            var enrollments = status == "accepted" 
+                ? (object)await _getUseCase.ExecuteAcceptedEnrollmentAsync(userId) 
+                : (object)await _getUseCase.ExecutePendingEnrollmentAsync(userId);
+
             return Ok(enrollments);
         }
         catch (Exception ex)
@@ -89,17 +118,61 @@ public class EnrollmentController : ControllerBase
     /// <response code="200">Enrollment status successfully updated</response>
     /// <response code="400">Invalid request parameters or update failed</response>
     [Authorize]
-    [HttpPatch("update/status/{classId}/{userId}")]
-    public async Task<IActionResult> UpdateEnrollmentStatus(Guid classId, Guid userId)
+    [HttpPatch("update/{classId}/{userId}/status")]
+    public async Task<IActionResult> UpdateEnrollmentStatus(Guid classId, Guid userId, [FromBody] UpdateEnrollmentStatusDto request)
     {
         try
         {
-            var update = await _updateUseCase.ExecuteUpdateEnrollmentStatusAsync(classId, userId);
+            var update = await _updateUseCase.ExecuteUpdateEnrollmentStatusAsync(classId, userId, request.status);
             return Ok(update);
         }
         catch (Exception ex)
         {
             return BadRequest(ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("delete/{classId}")]
+    public async Task<IActionResult> DeleteEnrollment(Guid classId)
+    {
+        try 
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!Guid.TryParse(userIdString, out Guid userId))
+            {
+                return Unauthorized(new { message = "Invalid or missing user ID in token." });
+            }
+
+            await _deleteUseCase.ExecuteDeleteEnrollmentAsync(classId, userId);
+            
+            return Ok(new { message = "Enrollment request cancelled successfully" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Gets all enrolled users for a specific classroom
+    /// </summary>
+    /// <param name="classId">The ID of the classroom</param>
+    /// <param name="isApproved">Fetch only approved (true) or pending (false) enrollments</param>
+    /// <returns>Collection of enrolled users</returns>
+    [Authorize]
+    [HttpGet("classroom/{classId}/users")]
+    public async Task<IActionResult> GetClassroomEnrollments(Guid classId, [FromQuery] string status)
+    {
+        try
+        {
+            var users = await _getClassEnrollmentsUseCase.ExecuteGetClassroomEnrollmentsAsync(classId, status);
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 }

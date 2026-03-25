@@ -1,4 +1,5 @@
 using eSECAI.Application.Interfaces;
+using eSECAI.Application.DTOs;
 
 namespace eSECAI.Application.UseCases.Enrollments;
 
@@ -28,17 +29,42 @@ public class GetEnrollmentUseCase
     /// </summary>
     /// <param name="userId">The ID of the user</param>
     /// <returns>Collection of EnrollmentDto objects with classroom details</returns>
-    public async Task<IEnumerable<EnrollmentDto>> ExecuteGetUserEnrollmentAsync(Guid userId)
+    public async Task<IEnumerable<ClassroomDataResponse>> ExecuteAcceptedEnrollmentAsync(Guid userId)
     {
         // Retrieve users's active enrollments from database
-        var enrollments = await _repository.GetUserEnrollmentAsync(userId);
+        var enrollments = await _repository.GetUserEnrollmentsAsync(userId);
 
         // Map enrollment entities to DTOs with classroom information
-        return enrollments.Select(e => new EnrollmentDto(
-            e.class_id,
-            e.classroom?.class_name ?? "Unknown Classroom",
-            e.classroom?.class_description ?? string.Empty,
-            e.enroll_created_at
-        ));
+        return enrollments
+            .Where(e => e.enroll_status == "accepted")
+            .Select(e => new ClassroomDataResponse(
+                e.class_id,
+                e.classroom!.class_name,
+                e.classroom!.class_description,
+                e.classroom!.class_banner,
+                e.classroom!.class_created_at,
+                new UserData(
+                    e.classroom.user!.user_id,
+                    e.classroom.user!.email,
+                    e.classroom.user!.display_name,
+                    e.classroom.user.display_image ?? string.Empty
+                )
+            ));
     }
+
+    public async Task<IEnumerable<PendingEnrollment>> ExecutePendingEnrollmentAsync(Guid userId)
+    {
+        // Retrieve users's active enrollments from database
+        var enrollments = await _repository.GetUserEnrollmentsAsync(userId);
+
+        // Map enrollment entities to DTOs with classroom information
+        return enrollments
+            .Where(e => e.enroll_status == "pending")
+            .Select(e => new PendingEnrollment(
+                e.classroom!.class_id,
+                e.enroll_created_at,
+                e.classroom.class_name
+            ));
+    }
+
 }

@@ -179,8 +179,11 @@ export const Header = () => {
       <AlertDialog open={isOpenLogoutDialog}>
         <AlertDialogContent className="bg-custom-primary-contrast">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure of this action?</AlertDialogTitle>
-            <AlertDialogDescription>asdasd</AlertDialogDescription>
+            <AlertDialogTitle>Log out of your account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will be signed out of your session. Make sure you've saved any 
+              current classroom progress before leaving.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setIsOpenLogoutDialog(false)}>

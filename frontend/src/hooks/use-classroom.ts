@@ -10,7 +10,7 @@ export const useCreateClassroom = () => {
     mutationFn: ClassroomService.create,
     onSuccess: (data: ClassroomData) => {
       queryClient.setQueryData(
-        ["classroomsByCreator", user.userId],
+        ["createdClassrooms", user.userId],
         (old: ClassroomData[] = []) => [...old, data],
       );
       queryClient.invalidateQueries({
@@ -20,12 +20,13 @@ export const useCreateClassroom = () => {
   });
 };
 
-export const useGetClassroomsByCreator = (userId: string) => {
+export const useGetCreatedClassrooms = () => {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["classroomsByCreator", userId],
-    queryFn: () => ClassroomService.getByCreator(userId),
+    queryKey: ["createdClassrooms", user?.userId],
+    queryFn: ClassroomService.getCreatedClassrooms,
     staleTime: 5000,
-    enabled: !!userId,
+    enabled: !!user?.userId,
     retry: false,
   });
 };
@@ -33,9 +34,10 @@ export const useGetClassroomsByCreator = (userId: string) => {
 export const useGetClassroomData = (classId: string, userId: string) => {
   return useQuery({
     queryKey: ["classroomData", classId, userId],
-    queryFn: () => ClassroomService.getData(classId, userId),
+    queryFn: () => ClassroomService.getData(classId),
     staleTime: 5000,
     enabled: !!classId && !!userId,
+    retry: false
   });
 };
 

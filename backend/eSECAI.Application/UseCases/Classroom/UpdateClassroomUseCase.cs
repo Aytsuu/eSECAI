@@ -68,7 +68,7 @@ public class UpdateClassroomUseCase
             classroom.class_description,
             classroom.class_banner,
             classroom.class_created_at,
-            new ClassroomCreator(
+            new UserData(
                 classroom.user.user_id,
                 classroom.user.email,
                 classroom.user.display_name,
