@@ -12,9 +12,9 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/404/not-found', request.url));
   }
 
-  if (!isPublicPath && !token) {
-    return NextResponse.redirect(new URL('/authentication/login', request.url));
-  }
+  // if (!isPublicPath && !token) {
+  //   return NextResponse.redirect(new URL('/authentication/login', request.url));
+  // }
 
   if (token && isAuthPage) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
