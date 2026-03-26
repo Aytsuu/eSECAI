@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 
 // API instance with credentials enabled
 export const api = axios.create({
-  baseURL: process.env.NODE_ENV == "development" ? process.env.NEXT_PUBLIC_API_URL : process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NODE_ENV == "development" ? "http://localhost:8080" : process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true // This tells the browser to send the HttpOnly cookies
 });
 
