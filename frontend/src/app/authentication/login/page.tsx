@@ -191,7 +191,7 @@ export default () => {
               </div>
 
               <Link
-                href={`${api.defaults.baseURL}/api/auth/login-google?returnUrl=${api.defaults.baseURL}`}
+                href={`${api.defaults.baseURL}/api/auth/login-google?returnUrl=${process.env.NODE_ENV == "development" ? "http://localhost:3000" : process.env.NEXT_PUBLIC_API_URL}`}
                 className="bg-primary text-primary-foreground font-medium flex justify-center items-center gap-2 border w-full h-10 rounded-lg"
               >
                 <FcGoogle size={22} />
