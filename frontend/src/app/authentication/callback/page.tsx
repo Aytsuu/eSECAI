@@ -1,16 +1,16 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import React from "react";
 import { useAuth } from "@/components/context/AuthContext";
 
-export default () => {
+const Callback = () => {
   const { storeUser } = useAuth();
   const router = useRouter();
+  const urlParams = useSearchParams();
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Read the URL parameters
-      const urlParams = useSearchParams();
       const userId = urlParams.get('userId');
       const email = urlParams.get('email');
       const displayName = urlParams.get('displayName');
@@ -33,4 +33,12 @@ export default () => {
   }, []);
 
   return <div>Authenticating...</div>;
+}
+
+export default () => {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <Callback/>
+    </React.Suspense>
+  )
 }
