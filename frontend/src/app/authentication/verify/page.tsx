@@ -29,10 +29,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import Cookies from "js-cookie";
 
-export default () => {
+const VerifyPage = () => {
   // Hooks & States
-  const urlParams = new URLSearchParams(window.location.search);
-  const type = urlParams.get("type");
+  const searchParams = useSearchParams();
+  const type = searchParams.get("type");
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [isResendingOtp, setIsResendingOtp] = React.useState<boolean>(false);
@@ -164,3 +164,11 @@ export default () => {
     </div>
   );
 };
+
+export default () => {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <VerifyPage/>
+    </React.Suspense>
+  )
+}

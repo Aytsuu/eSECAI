@@ -397,7 +397,7 @@ function SectionNav({
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-export default () => {
+const ClassroomsContent = () => {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -692,3 +692,11 @@ export default () => {
     </>
   );
 };
+
+export default () => {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <ClassroomsContent />
+    </React.Suspense>
+  );
+}
