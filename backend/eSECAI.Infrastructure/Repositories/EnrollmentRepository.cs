@@ -42,10 +42,17 @@ public class EnrollmentRepository : IEnrollmentRepository
 
     public async Task<Enrollment> GetEnrollmentAsync(Guid classId, Guid userId)
     {
-        return await _context.Enrollments
+        var enrollment = await _context.Enrollments
             .Include(e => e.classroom!)
             .Include(e => e.user!)
             .FirstOrDefaultAsync(e => e.class_id == classId && e.user_id == userId);
+
+        if (enrollment == null)
+        {
+            throw new KeyNotFoundException("User is not enrolled in this class.");
+        }
+        
+        return enrollment;
     }
 
     /// <summary>

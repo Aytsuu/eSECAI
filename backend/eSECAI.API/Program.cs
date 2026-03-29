@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using System.Text.Json;
 using System.Collections.Concurrent;
+using Microsoft.AspNetCore.HttpOverrides;
 
 /// <summary>
 /// eSECAI API Application Entry Point
@@ -17,6 +18,12 @@ using System.Collections.Concurrent;
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Retrieve JWT secret key from configuration and validate it exists
 var jwtKey = builder.Configuration["Jwt:Key"];
@@ -61,7 +68,7 @@ builder.Services.AddCors(options =>
     {
         // Allow requests from specified frontend origins
         policy.WithOrigins(
-            // "https://esecai.paoloaraneta.dev",
+            "https://esecai.paoloaraneta.dev",
             "http://127.0.0.1:3000",
             "http://localhost:3000"
         )

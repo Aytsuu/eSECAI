@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using eSECAI.Application.UseCases.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
@@ -324,12 +325,15 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <returns>Challenge result that redirects to Google authentication</returns>
     [HttpGet("login-google")]
-    public IActionResult SigninWithGoogle()
+    public IActionResult SigninWithGoogle(string returnUrl = "http://localhost:3000")
     {
-        return Challenge(
-            new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse")},
-            "Google"
-        );
+        var properties = new AuthenticationProperties
+        { 
+            RedirectUri = Url.Action("GoogleResponse"),
+            Items = { { "returnUrl", returnUrl } } // Store the frontend's location
+        };
+
+        return Challenge(properties, "Google");
     }
 
     /// <summary>
@@ -344,7 +348,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> GoogleResponse()
     {
         // Authenticate the user based on the cookie set by Google auth
-        var result = await HttpContext.AuthenticateAsync("Cookies");
+        var result = await HttpContext.AuthenticateAsync("Google");
 
         if (!result.Succeeded) return BadRequest("Google Auth Failed.");
 
@@ -376,11 +380,16 @@ public class AuthController : ControllerBase
         // Delete the temporary Google cookie so it doesn't clutter the browser
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
+        // Get the returnUrl we stored earlier (or fallback to local if something goes wrong)
+        var frontendBaseUrl = result.Properties.Items.ContainsKey("returnUrl") 
+            ? result.Properties.Items["returnUrl"] 
+            : "http://localhost:3000"; 
+
         // Set cookies securely from the backend
         SetTokenCookies(user.accessToken, user.refreshToken);
         
         // Redirect to frontend with tokens in query string
-        return Redirect($"http://localhost:3000/authentication/callback?userId={user.userId}&email={email}&displayName={displayName}&displayImage={displayImage}");
+        return Redirect($"{frontendBaseUrl}/authentication/callback?userId={user.userId}&email={email}&displayName={displayName}&displayImage={displayImage}");
     }
 
     /// <summary>
@@ -391,11 +400,15 @@ public class AuthController : ControllerBase
     [HttpPost("logout")]
     public IActionResult logout() 
     {
+        var isProduction = !Request.Host.Host.Contains("localhost");
+        var rootDomain = isProduction ? ".paoloaraneta.dev" : null;
+
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax
+            Secure = true,
+            SameSite = isProduction ? SameSiteMode.None : SameSiteMode.Lax,
+            Domain = rootDomain,
         };
 
         // This tells the browser to instantly destroy these cookies
@@ -412,25 +425,36 @@ public class AuthController : ControllerBase
     /// <param name="accessToken">The access token of the logged user</param>
     /// <param name="refreshToken">The refresh token of the logged user</param>
     private void SetTokenCookies(string accessToken, string refreshToken)
-    {
-        // Access Token Cookie (short-lived)
-        var accessOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTime.UtcNow.AddMinutes(60)
-        };
-        Response.Cookies.Append("accessToken", accessToken, accessOptions);
+{
+    // Determine if we are in production to set the domain correctly
+    var isProduction = !Request.Host.Host.Contains("localhost");
+    var rootDomain = isProduction ? ".paoloaraneta.dev" : null;
 
-        var refreshOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTime.UtcNow.AddDays(7)
-        };
-        Response.Cookies.Append("refreshToken", refreshToken, refreshOptions);
-    }
+    var accessOptions = new CookieOptions
+    {
+        HttpOnly = true,
+        // MUST be true for SameSite=None
+        Secure = true, 
+        // Allows the cookie to be sent across different subdomains/origins
+        SameSite = isProduction ? SameSiteMode.None : SameSiteMode.Lax,
+        // Crucial: Allows all *.paoloaraneta.dev sites to read the cookie
+        Domain = rootDomain, 
+        Expires = DateTime.UtcNow.AddMinutes(60),
+        Path = "/"
+    };
+
+    var refreshOptions = new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = isProduction ? SameSiteMode.None : SameSiteMode.Lax,
+        Domain = rootDomain,
+        Expires = DateTime.UtcNow.AddDays(7),
+        Path = "/"
+    };
+
+    Response.Cookies.Append("accessToken", accessToken, accessOptions);
+    Response.Cookies.Append("refreshToken", refreshToken, refreshOptions);
+}
 
 }
