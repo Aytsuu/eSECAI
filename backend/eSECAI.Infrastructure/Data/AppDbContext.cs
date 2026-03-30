@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
     public DbSet<Posting> Postings => Set<Posting>();
     public DbSet<Submission> Submissions => Set<Submission>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -114,6 +115,20 @@ public class AppDbContext : DbContext
                 .HasForeignKey(e => e.post_id)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+        });
+
+        modelBuilder.Entity<Notification>(entity => 
+        {
+            entity.HasKey(e => e.notif_id);
+            entity.HasOne(e => e.user)
+                .WithMany()
+                .HasForeignKey(e => e.user_id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+            entity.Property(e => e.notif_title);
+            entity.Property(e => e.notif_message);
+            entity.Property(e => e.notif_is_read);
+            entity.Property(e => e.notif_created_at);
         });
     }
 

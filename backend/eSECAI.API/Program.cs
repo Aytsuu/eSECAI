@@ -11,6 +11,7 @@ using System.Threading.RateLimiting;
 using System.Text.Json;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.HttpOverrides;
+using eSECAI.Infrastructure.Hubs;
 
 /// <summary>
 /// eSECAI API Application Entry Point
@@ -147,6 +148,9 @@ var app = builder.Build();
 // Enable Swagger documentation UI in development
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Map the Hub route
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 // Configure middleware pipeline
 // app.UseHttpsRedirection(); // Disabled for development

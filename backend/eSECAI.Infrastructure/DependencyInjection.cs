@@ -87,11 +87,25 @@ public static class DependencyInjection
                 {
                     OnMessageReceived = context =>
                     {
-                        var token = context.Request.Cookies["accessToken"];
-                        if (!string.IsNullOrEmpty(token))
+                        // Try to get token from Cookie (Standard for all API requests)
+                        var accessToken = context.Request.Cookies["accessToken"];
+
+                        // ONLY if Cookie is missing, check the Query String (Specific for SignalR)
+                        if (string.IsNullOrEmpty(accessToken))
                         {
-                            context.Token = token;
+                            var path = context.HttpContext.Request.Path;
+                            if (path.StartsWithSegments("/hubs/notifications"))
+                            {
+                                accessToken = context.Request.Query["access_token"];
+                            }
                         }
+
+                        // If we found a token in either place, assign it
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
                         return Task.CompletedTask;
                     }
                 };
@@ -121,6 +135,8 @@ public static class DependencyInjection
             .WithCredentials(config["Minio:AccessKey"], config["Minio:SecretKey"])
             .WithSSL(false)
             .Build());
+        
+        services.AddSignalR();
 
         // Register Repository and External Services
         services.AddScoped<AuthService>();
@@ -131,6 +147,7 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IRedisCacheService, RedisCacheService>();
         services.AddScoped<IMinioFileService, MinioFileService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }
