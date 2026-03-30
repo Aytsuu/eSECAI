@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { NotificationProvider } from "@/components/context/NotificationContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,9 @@ export default function RootLayout({
         <ThemeProvider attribute={"class"} defaultTheme="dark">
           <TooltipProvider>
             <Provider>
-              <AuthProvider>{children}</AuthProvider>
+              <NotificationProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </NotificationProvider>
             </Provider>
           </TooltipProvider>
           <Toaster/>
