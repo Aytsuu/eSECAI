@@ -59,7 +59,7 @@ export default function RootPage() {
 
             <Link href="authentication/login">
               <Button className="rounded-full font-medium px-6 bg-linear-to-r from-indigo-600 to-violet-600 text-white shadow-button hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(79,70,229,0.4)] transition-all border-0">
-                Start Classes
+                Get Started
               </Button>
             </Link>
           </div>
@@ -92,7 +92,7 @@ export default function RootPage() {
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="authentication/login">
                 <Button size="lg" className="rounded-full h-14 px-8 text-base bg-linear-to-r from-indigo-600 to-violet-600 text-white shadow-button hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(79,70,229,0.4)] transition-all border-0 group">
-                  Start Classes <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  Get Started <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
               <Button variant="outline" size="lg" className="rounded-full h-14 px-8 text-base text-slate-700 border-slate-200 bg-white hover:bg-slate-50 transition-colors shadow-sm" onClick={() => scrollToSection("features")}>

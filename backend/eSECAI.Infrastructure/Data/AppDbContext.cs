@@ -19,6 +19,10 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Classroom> Classrooms => Set<Classroom>();
+    public DbSet<Assessment> Assessments => Set<Assessment>();
+    public DbSet<Question> Questions => Set<Question>();
+    public DbSet<Record> Records => Set<Record>();
+    public DbSet<RecordAnswer> RecordAnswers => Set<RecordAnswer>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -50,7 +54,6 @@ public class AppDbContext : DbContext
             entity.Property(e => e.class_description).HasMaxLength(1000);
             entity.Property(e => e.class_banner);
             entity.Property(e => e.class_is_archived).HasDefaultValue(false);
-            // Foreign key relationship to User (teacher)
             entity.HasOne(e => e.user)
                 .WithMany(e => e.classrooms)
                 .HasForeignKey(e => e.user_id)
@@ -60,6 +63,79 @@ public class AppDbContext : DbContext
             entity.Property(e => e.class_updated_at);
             entity.HasIndex(e => e.user_id); // Index for finding classrooms by teacher
             entity.HasIndex(e => e.class_id); // Index for direct classroom lookup
+        });
+
+        modelBuilder.Entity<Assessment>(entity => 
+        {
+            entity.HasKey(e => e.ass_id);
+            entity.Property(e => e.ass_title);
+            entity.Property(e => e.ass_type).HasMaxLength(20);
+            entity.Property(e => e.ass_answer_key_url);
+            entity.Property(e => e.ass_rubric_meta);
+            entity.Property(e => e.ass_total_points);
+            entity.Property(e => e.ass_status).HasDefaultValue("draft");
+            entity.Property(e => e.ass_created_at);
+            entity.Property(e => e.ass_updated_at);
+            entity.HasOne(e => e.classroom)
+                .WithMany(e => e.assessments)
+                .HasForeignKey(e => e.class_id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<Question>(entity => 
+        {
+            entity.HasKey(e => e.quest_id);
+            entity.Property(e => e.quest_num);
+            entity.Property(e => e.quest_type).HasMaxLength(20);
+            entity.Property(e => e.quest_text);
+            entity.Property(e => e.quest_correct_answer);
+            entity.Property(e => e.quest_max_points);
+            entity.Property(e => e.quest_ai_confidence);
+            entity.HasOne(e => e.assessment)
+                .WithMany(e => e.questions)
+                .HasForeignKey(e => e.ass_id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<Record>(entity => 
+        {
+            entity.HasKey(e => e.rec_id);
+            entity.Property(e => e.rec_student_name);
+            entity.Property(e => e.rec_scan_url);
+            entity.Property(e => e.rec_total_score);
+            entity.Property(e => e.rec_percentage);
+            entity.Property(e => e.rec_status).HasDefaultValue("pending");
+            entity.Property(e => e.rec_graded_at);
+            entity.Property(e => e.rec_created_at);
+            entity.HasOne(e => e.assessment)
+                .WithMany(e => e.records)
+                .HasForeignKey(e => e.ass_id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<RecordAnswer>(entity => 
+        {
+            entity.HasKey(e => e.ra_id);
+            entity.Property(e => e.ra_student_ans);
+            entity.Property(e => e.ra_awarded_pts);
+            entity.Property(e => e.ra_ai_confidence);
+            entity.Property(e => e.ra_feedback);
+            entity.Property(e => e.ra_teacher_rev).HasDefaultValue(false);
+            entity.Property(e => e.ra_teacher_op);
+            entity.Property(e => e.ra_raw_response);
+            entity.HasOne(e => e.question)
+                .WithMany(e => e.record_answers)
+                .HasForeignKey(e => e.quest_id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+            entity.HasOne(e => e.record)
+                .WithMany(e => e.record_answers)
+                .HasForeignKey(e => e.rec_id)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
         });
         
         modelBuilder.Entity<Notification>(entity => 

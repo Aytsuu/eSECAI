@@ -22,6 +22,9 @@ public class Classroom
     [ForeignKey("user_id")]
     public User? user { get; set; }
 
+    // Collections
+    public ICollection<Assessment> assessments { get; set; } = new List<Assessment>();
+
     /// <summary>
     /// Factory method for creating a new Classroom with domain validation
     /// Ensures classroom has a valid teacher (user)
