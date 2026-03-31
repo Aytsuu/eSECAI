@@ -24,7 +24,6 @@ public class GetUserUseCase
     /// <param name="authRepository">Repository for user authentication operations</param>
     /// <param name="authService">Service for generating JWT and refresh tokens</param>
     /// <param name="classroomRepository">Repository for classroom operations</param>
-    /// <param name="enrollmentRepository">Repository for enrollment operations</param>
     public GetUserUseCase(
         IAuthRepository authRepository, 
         IAuthService authService,

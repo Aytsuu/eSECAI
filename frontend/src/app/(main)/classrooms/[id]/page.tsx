@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/context/AuthContext";
 import { useDeleteClassroom, useGetClassroomData, useUpdateClassroom } from "@/hooks/use-classroom";
 import { Button } from "@/components/ui/button";
-import { useClassEnrollmentRequests, useClassEnrollments, useUpdateEnrollmentStatus } from "@/hooks/use-enrollment";
 import React from "react";
 import Protected from "@/app/(main)/protected";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,12 +52,6 @@ import {
   CalendarDays,
   Pin,
   Pen,
-  ChevronRight,
-  UserCheck,
-  UserX,
-  Inbox,
-  Check,
-  X,
 } from "lucide-react";
 import { UserProfile } from "@/types/auth";
 import { Post } from "@/types/classroom";
@@ -136,150 +129,7 @@ function EmptyPosts() {
   );
 }
 
-// ── Requests Sidebar ──────────────────────────────────────────────────────────
-function RequestsSidebar({
-  requests,
-  isLoading,
-  isOpen,
-  onToggle,
-  onApprove,
-  onReject,
-}: {
-  requests: UserProfile[];
-  isLoading: boolean;
-  isOpen: boolean;
-  onToggle: () => void;
-  onApprove: (userId: string) => void;
-  onReject: (userId: string) => void;
-}) {
-  return (
-    <div
-      className={`
-        relative flex flex-col border-l border-border/50 bg-background/80 backdrop-blur-sm
-        transition-all duration-300 ease-in-out shrink-0
-        ${isOpen ? "w-72" : "w-10"}
-      `}
-    >
-      {/* Toggle button */}
-      <button
-        onClick={onToggle}
-        className="absolute -left-3.5 top-6 z-10 w-7 h-7 rounded-full border border-border/60 bg-background shadow-sm flex items-center justify-center hover:bg-muted transition-colors"
-        aria-label={isOpen ? "Collapse requests panel" : "Expand requests panel"}
-      >
-        <ChevronRight
-          size={14}
-          className={`text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
 
-      {/* Collapsed state: rotated label */}
-      {!isOpen && (
-        <div className="flex flex-col items-center pt-16 gap-2">
-          <span
-            className="text-[10px] font-semibold text-muted-foreground tracking-widest uppercase"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-          >
-            Requests
-          </span>
-          {requests.length > 0 && (
-            <Badge className="text-[9px] h-4 px-1 bg-amber-500 hover:bg-amber-500 text-white border-0">
-              {requests.length}
-            </Badge>
-          )}
-        </div>
-      )}
-
-      {/* Expanded state */}
-      {isOpen && (
-        <div className="flex flex-col h-full overflow-hidden">
-          <div className="px-4 pt-5 pb-3 border-b border-border/40 flex items-center gap-2 shrink-0">
-            <Inbox size={14} className="text-muted-foreground" />
-            <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase flex-1">
-              Join Requests
-            </p>
-            {requests.length > 0 && (
-              <Badge className="text-[10px] h-4 px-1.5 bg-amber-500 hover:bg-amber-500 text-white border-0">
-                {requests.length}
-              </Badge>
-            )}
-          </div>
-
-          <ScrollArea className="flex-1 px-3 py-3">
-            {isLoading ? (
-              <div className="flex flex-col gap-2 pt-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-14 rounded-xl bg-muted/50 animate-pulse" />
-                ))}
-              </div>
-            ) : requests.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center gap-2">
-                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                  <UserCheck size={16} className="text-muted-foreground" />
-                </div>
-                <p className="text-xs text-muted-foreground">No pending requests</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {requests.map((req) => (
-                  <div
-                    key={req.userId}
-                    className="flex items-center gap-2.5 p-2.5 rounded-xl border border-border/40 bg-card/50 hover:bg-muted/30 transition-colors"
-                  >
-                    <Avatar className="w-8 h-8 border border-border/50 shrink-0">
-                      <AvatarImage src={req.displayImage} />
-                      <AvatarFallback className="text-[10px] font-bold">
-                        {getInitials(req.displayName ?? "?")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-foreground truncate">
-                        {req.displayName}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground truncate">
-                        {req.email}
-                      </p>
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => onApprove(req.userId)}
-                              className="w-6 h-6 rounded-lg cursor-pointer bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 flex items-center justify-center transition-colors"
-                            >
-                              <Check size={11} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="left" className="text-xs">
-                            Approve
-                          </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              onClick={() => onReject(req.userId)}
-                              className="w-6 h-6 rounded-lg cursor-pointer bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-colors"
-                            >
-                              <X size={11} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="left" className="text-xs">
-                            Reject
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </div>
-      )}
-    </div>
-  );
-}
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default () => {
   // Hooks & States
@@ -301,17 +151,13 @@ export default () => {
   const [showNewPostDialog, setShowNewPostDialog] = React.useState<boolean>(false);
   const [postContent, setPostContent] = React.useState<string>("");
   const [isSubmittingPost, setIsSubmittingPost] = React.useState<boolean>(false);
-  const [isRequestsPanelOpen, setIsRequestsPanelOpen] = React.useState<boolean>(true);
 
-  const { mutateAsync: updateEnrollmentStatus } = useUpdateEnrollmentStatus();
   const { mutateAsync: deleteClassroom } = useDeleteClassroom();
   const { mutateAsync: updateClassroom } = useUpdateClassroom();
   const { data: classroomData, isLoading: isLoadingClassroomData, error } = useGetClassroomData(
     classId,
     user?.userId,
   );
-  const { data: classEnrollments, isLoading: isLoadingEnrollments } = useClassEnrollments(classId);
-  const { data: classEnrollmentRequests, isLoading: isLoadingRequests } = useClassEnrollmentRequests(classId);
 
   // Flags
   const hasUpdate = form.formState.isDirty;
@@ -394,39 +240,10 @@ export default () => {
     }
   };
 
-  const handleApproveRequest = async (userId: string) => {
-    try {
-      await updateEnrollmentStatus({
-        classId,
-        userId,
-        status: "accepted"
-      })
-      toast.success("Request approved");
-    } catch (err: any) {
-      queryError(err);
-      toast.error("Failed to approve request");
-    }
-  };
-
-  const handleRejectRequest = async (userId: string) => {
-    try {
-      await updateEnrollmentStatus({
-        classId,
-        userId,
-        status: "rejected"
-      })
-      toast.success("Request rejected");
-    } catch {
-      toast.error("Failed to reject request");
-    }
-  };
-
   if (!isMounted || !classId) return null;
 
   const data = classroomData;
   const posts: Post[] = [];
-  const enrolledUsers: UserProfile[] = classEnrollments ?? [];
-  const enrollmentRequests: UserProfile[] = classEnrollmentRequests ?? [];
 
   const bannerUrl = data?.classBanner;
 
@@ -568,73 +385,10 @@ export default () => {
                     </div>
                   </div>
                 )}
-
-                {/* ✅ Fixed: enrolledUsers now sourced from classEnrollments */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-xs font-semibold text-muted-foreground tracking-wide flex items-center gap-1.5">
-                        <Users size={12} />
-                        STUDENTS
-                      </CardTitle>
-                      <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
-                        {enrolledUsers.length}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {isLoadingEnrollments ? (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {[1, 2, 3].map((i) => (
-                          <div key={i} className="w-9 h-9 rounded-full bg-muted animate-pulse" />
-                        ))}
-                      </div>
-                    ) : enrolledUsers.length === 0 ? (
-                      <p className="text-xs text-muted-foreground py-3 text-center">
-                        No students enrolled yet.
-                      </p>
-                    ) : (
-                      <ScrollArea className="max-h-64">
-                        <TooltipProvider>
-                          <div className="flex flex-wrap gap-2 pt-1">
-                            {enrolledUsers.map((u) => (
-                              <Tooltip key={u.userId}>
-                                <TooltipTrigger asChild>
-                                  <Avatar className="w-9 h-9 border-2 border-background ring-1 ring-border/50 cursor-default hover:scale-110 transition-transform">
-                                    <AvatarImage src={u.displayImage} />
-                                    <AvatarFallback className="text-[10px] font-bold">
-                                      {getInitials(u.displayName ?? "?")}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="text-xs">
-                                  <p className="font-semibold">{u.displayName}</p>
-                                  <p className="text-muted-foreground">{u.email}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            ))}
-                          </div>
-                        </TooltipProvider>
-                      </ScrollArea>
-                    )}
-                  </CardContent>
-                </Card>
               </div>
             </div>
           </div>
         </div>
-
-        {/* ── Right: Collapsible requests sidebar (page-level, outside main layout) ── */}
-        {isCreator && (
-          <RequestsSidebar
-            requests={enrollmentRequests}
-            isLoading={isLoadingRequests}
-            isOpen={isRequestsPanelOpen}
-            onToggle={() => setIsRequestsPanelOpen((prev) => !prev)}
-            onApprove={handleApproveRequest}
-            onReject={handleRejectRequest}
-          />
-        )}
       </div>
 
       {/* ── Classroom Form Dialog ── */}
@@ -743,7 +497,7 @@ export default () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete classroom?</AlertDialogTitle>
             <AlertDialogDescription>
-              This is permanent. All posts and enrollments will be lost.
+              This is permanent. All posts and materials will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

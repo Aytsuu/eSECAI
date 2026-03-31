@@ -70,7 +70,7 @@ Skwela/
 The backend is organized into four main layers:
 
 1. **Domain Layer** (`Skwela.Domain`)
-   - Core business entities (User, Classroom, Enrollment, Assignment, Submission)
+   - Core business entities (User, Classroom, Assignment, Submission)
    - Business logic enums (UserRole)
    - Custom exceptions
 
@@ -192,7 +192,6 @@ This will:
 
 - **User Management**: Authentication and authorization with JWT
 - **Classroom Management**: Create and manage classrooms
-- **Student Enrollment**: Manage student enrollment in classrooms
 - **Assignment Tracking**: Create and track assignments
 - **Submission Management**: Students submit assignments and receive feedback
 
@@ -202,7 +201,6 @@ The API follows RESTful conventions with the following main endpoints:
 
 - **Authentication**: `/api/auth/*`
 - **Classrooms**: `/api/classrooms/*`
-- **Enrollments**: `/api/enrollments/*`
 - **Users**: `/api/users/*`
 
 For detailed API documentation, check the HTTP files in `Skwela.API/` or import them into your API client (Postman, Insomnia, etc.)

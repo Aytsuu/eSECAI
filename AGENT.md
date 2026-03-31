@@ -25,7 +25,6 @@ Eliminate the manual burden of checking student exam papers. The teacher uploads
 
 ### 4. Classrooms
 - Teacher can **create and manage classrooms**.
-- Each classroom lists enrolled students and their engagement records.
 - Entry point to the **exam checking workflow**.
 
 ---

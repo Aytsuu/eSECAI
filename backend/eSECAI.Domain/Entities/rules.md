@@ -5,7 +5,7 @@
 - These classes represent the core business objects and state.
 
 ## Naming
-- Class names should be singular PascalCase (e.g., `User`, `Classroom`, `Enrollment`).
+- Class names should be singular PascalCase (e.g., `User`, `Classroom`, `Assignment`).
 
 ## Implementation
 - Properties naming convention: The existing codebase uses `snake_case` for properties (e.g., `user_id`, `display_name`). Follow this convention for consistency, although PascalCase is standard C#.

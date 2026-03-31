@@ -87,10 +87,8 @@ public class ClassroomRepository : IClassroomRepository
 
     /// <summary>
     /// Deletes a classroom from the system
-    /// A classroom can only be deleted if it has no active enrolled students
     /// </summary>
-    /// <param name="classId">The ID of the classroom to delete</param>
-    /// <exception cref="InvalidOperationException">Thrown if classroom has active student enrollments</exception>
+    /// <param name="classroom">The classroom entity to delete</param>
     public async Task DeleteClassroomAsync(Classroom classroom)
     {
         // Delete classroom from database

@@ -27,11 +27,9 @@ public class DeleteClassroomUseCase
 
     /// <summary>
     /// Executes the classroom deletion process
-    /// A classroom can only be deleted if it has no active enrolled students
     /// </summary>
     /// <param name="classId">The ID of the classroom to delete</param>
     /// <returns>Async task that completes when deletion is successful</returns>
-    /// <exception cref="InvalidOperationException">Thrown if classroom has active students enrolled</exception>
     public async Task ExecuteDeleteClassroomAsync(Guid classId)
     {
         // Delete the classroom

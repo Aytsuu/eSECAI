@@ -180,7 +180,6 @@ public class ClassroomsController : ControllerBase
     /// Retrieves detailed information about a specific classroom
     /// Performs authorization checks based on user role:
     /// - Teachers can only access their own classrooms
-    /// - Students can only access classrooms they are enrolled in
     /// </summary>
     /// <param name="classId">The ID of the classroom to retrieve</param>
     /// <param name="userId">The ID of the user requesting access</param>
@@ -225,12 +224,10 @@ public class ClassroomsController : ControllerBase
 
     /// <summary>
     /// Deletes a classroom
-    /// A classroom can only be deleted if it has no active enrolled students
     /// </summary>
     /// <param name="classId">The ID of the classroom to delete</param>
     /// <returns>No content on successful deletion</returns>
     /// <response code="200">Classroom successfully deleted</response>
-    /// <response code="409">Cannot delete classroom because it has active students</response>
     /// <response code="400">Invalid request or deletion failed</response>
     /// <response code="401">User is not authenticated</response>
     [Authorize]
