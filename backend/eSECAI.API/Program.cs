@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using eSECAI.Infrastructure;
-using eSECAI.Application;
-using eSECAI.Infrastructure.Data;
+using esecai.Infrastructure;
+using esecai.Application;
+using esecai.Infrastructure.Data;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Builder;
@@ -11,10 +11,10 @@ using System.Threading.RateLimiting;
 using System.Text.Json;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.HttpOverrides;
-using eSECAI.Infrastructure.Hubs;
+using esecai.Infrastructure.Hubs;
 
 /// <summary>
-/// eSECAI API Application Entry Point
+/// esecai API Application Entry Point
 /// Sets up all required services, middleware, and database configuration for the learning management system
 /// </summary>
 var builder = WebApplication.CreateBuilder(args);

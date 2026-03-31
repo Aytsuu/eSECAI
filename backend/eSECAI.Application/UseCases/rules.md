@@ -2,7 +2,7 @@
 
 ## Structure
 - Store application logic here, orchestrating interactions between the API, Domain, and Infrastructure.
-- Organize Use Cases by domain/feature (e.g., `eSECAI.Application.UseCases.Auth`).
+- Organize Use Cases by domain/feature (e.g., `esecai.Application.UseCases.Auth`).
 - Each Use Case should ideally handle a single specific business operation.
 
 ## Naming

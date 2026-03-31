@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\eSECAI.Domain\eSECAI.Domain.csproj" />
+    <ProjectReference Include="..\esecai.Domain\esecai.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace eSECAI.Infrastructure.Migrations
+namespace esecai.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class UpdateClassroomEntity : Migration

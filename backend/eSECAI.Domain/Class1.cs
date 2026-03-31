@@ -1,4 +1,4 @@
-﻿namespace eSECAI.Domain;
+namespace esecai.Domain;
 
 public class Class1
 {

@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using eSECAI.Application.UseCases.Classrooms;
-using eSECAI.Application.UseCases.Auth;
-using eSECAI.Application.UseCases.Enrollments;
+using esecai.Application.UseCases.Classrooms;
+using esecai.Application.UseCases.Auth;
+using esecai.Application.UseCases.Enrollments;
 
-namespace eSECAI.Application;
+namespace esecai.Application;
 
 /// <summary>
 /// Dependency Injection configuration for Application layer

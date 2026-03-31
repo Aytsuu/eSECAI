@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using eSECAI.Domain.Entities;
+using esecai.Domain.Entities;
 
-namespace eSECAI.Infrastructure.Data;
+namespace esecai.Infrastructure.Data;
 
 /// <summary>
 /// Application Database Context
-/// Entity Framework Core DbContext for eSECAI learning management system
+/// Entity Framework Core DbContext for esecai learning management system
 /// Handles database configuration, migrations, and entity relationships
 /// </summary>
 public class AppDbContext : DbContext

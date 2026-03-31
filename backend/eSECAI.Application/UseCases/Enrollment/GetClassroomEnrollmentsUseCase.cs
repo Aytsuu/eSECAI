@@ -1,8 +1,8 @@
-using eSECAI.Application.Interfaces;
-using eSECAI.Application.DTOs;
-using eSECAI.Domain.Entities;
+using esecai.Application.Interfaces;
+using esecai.Application.DTOs;
+using esecai.Domain.Entities;
 
-namespace eSECAI.Application.UseCases.Enrollments;
+namespace esecai.Application.UseCases.Enrollments;
 
 public class GetClassroomEnrollmentsUseCase
 {

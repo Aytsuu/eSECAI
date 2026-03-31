@@ -1,8 +1,8 @@
 using StackExchange.Redis;
-using eSECAI.Application.Interfaces;
+using esecai.Application.Interfaces;
 using System.Text.Json;
 
-namespace eSECAI.Infrastructure.Services;
+namespace esecai.Infrastructure.Services;
 
 public class RedisCacheService : IRedisCacheService
 {

@@ -6,17 +6,17 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using eSECAI.Infrastructure.Data;
-using eSECAI.Application.Interfaces;
-using eSECAI.Infrastructure.Services;
-using eSECAI.Infrastructure.Repositories;
+using esecai.Infrastructure.Data;
+using esecai.Application.Interfaces;
+using esecai.Infrastructure.Services;
+using esecai.Infrastructure.Repositories;
 using NRedisStack;
 using StackExchange.Redis;
 using Microsoft.AspNetCore.Http;
 using Minio;
 using Microsoft.AspNetCore.Authentication;
 
-namespace eSECAI.Infrastructure;
+namespace esecai.Infrastructure;
 
 /// <summary>
 /// Dependency Injection configuration for Infrastructure layer

@@ -1,4 +1,4 @@
-namespace eSECAI.Application.Interfaces;
+namespace esecai.Application.Interfaces;
 
 public interface IMinioFileService
 {

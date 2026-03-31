@@ -1,6 +1,6 @@
-using eSECAI.Application.Interfaces;
+using esecai.Application.Interfaces;
 
-namespace eSECAI.Application.UseCases.Enrollments;
+namespace esecai.Application.UseCases.Enrollments;
 
 public class DeleteEnrollmentUseCase
 {

@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "eSECAI - AI Activity Checker",
+  title: "esecai - AI Activity Checker",
   description: "",
 };
 

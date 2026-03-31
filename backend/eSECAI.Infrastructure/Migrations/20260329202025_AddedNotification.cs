@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace eSECAI.Infrastructure.Migrations
+namespace esecai.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddedNotification : Migration

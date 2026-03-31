@@ -1,7 +1,7 @@
-using eSECAI.Application.Interfaces;
-using eSECAI.Domain.Entities;
+using esecai.Application.Interfaces;
+using esecai.Domain.Entities;
 
-namespace eSECAI.Application.UseCases.Classrooms;
+namespace esecai.Application.UseCases.Classrooms;
 
 /// <summary>
 /// Use case for deleting classrooms

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using eSECAI.Application.UseCases.Auth;
+using esecai.Application.UseCases.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,9 +11,9 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using System;
-using eSECAI.Application.DTOs;
+using esecai.Application.DTOs;
 
-namespace eSECAI.API.Controllers;
+namespace esecai.API.Controllers;
 
 /// <summary>
 /// Authentication Controller

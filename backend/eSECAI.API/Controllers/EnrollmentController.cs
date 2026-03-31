@@ -1,11 +1,11 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using eSECAI.Application.UseCases.Enrollments;
-using eSECAI.Application.DTOs;
+using esecai.Application.UseCases.Enrollments;
+using esecai.Application.DTOs;
 using System.Security.Claims;
 
-namespace eSECAI.API.Controllers;
+namespace esecai.API.Controllers;
 
 /// <summary>
 /// Enrollment Controller

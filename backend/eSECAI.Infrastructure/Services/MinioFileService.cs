@@ -1,6 +1,6 @@
 using Minio;
 using Minio.DataModel.Args;
-using eSECAI.Application.Interfaces;
+using esecai.Application.Interfaces;
 
 public class MinioFileService : IMinioFileService
 {

@@ -1,7 +1,7 @@
-using eSECAI.Domain.Exceptions;
+using esecai.Domain.Exceptions;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace eSECAI.Domain.Entities;
+namespace esecai.Domain.Entities;
 
 /// <summary>
 /// Classroom Entity

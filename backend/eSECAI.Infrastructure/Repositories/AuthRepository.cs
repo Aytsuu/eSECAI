@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using eSECAI.Infrastructure.Data;
-using eSECAI.Application.Interfaces;
-using eSECAI.Infrastructure.Services;
-using eSECAI.Domain.Entities;
-using eSECAI.Domain.Exceptions;
+using esecai.Infrastructure.Data;
+using esecai.Application.Interfaces;
+using esecai.Infrastructure.Services;
+using esecai.Domain.Entities;
+using esecai.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Security.Cryptography;
 
-namespace eSECAI.Infrastructure.Repositories;
+namespace esecai.Infrastructure.Repositories;
 
 /// <summary>
 /// Authentication Repository

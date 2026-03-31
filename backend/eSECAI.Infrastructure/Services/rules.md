@@ -2,7 +2,7 @@
 
 ## Structure
 - Store infrastructure service implementations here (e.g., email, file storage, cache, 3rd party integrations).
-- Implement interfaces defined in `eSECAI.Application.Interfaces`.
+- Implement interfaces defined in `esecai.Application.Interfaces`.
 
 ## Naming
 - Class names must end with `Service` (e.g., `EmailService`, `RedisCacheService`, `MinioFileService`).

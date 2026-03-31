@@ -1,8 +1,8 @@
-using eSECAI.Domain.Entities;
-using eSECAI.Application.Interfaces;
-using eSECAI.Application.DTOs;
+using esecai.Domain.Entities;
+using esecai.Application.Interfaces;
+using esecai.Application.DTOs;
 
-namespace eSECAI.Application.UseCases.Auth;
+namespace esecai.Application.UseCases.Auth;
 
 /// <summary>
 /// Use case for updating user information

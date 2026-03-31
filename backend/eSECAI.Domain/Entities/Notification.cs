@@ -1,7 +1,7 @@
-using eSECAI.Domain.Exceptions;
+using esecai.Domain.Exceptions;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace eSECAI.Domain.Entities;
+namespace esecai.Domain.Entities;
 
 public class Notification {
     public Guid notif_id { get; set; } = Guid.NewGuid();

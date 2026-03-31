@@ -1,11 +1,11 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using eSECAI.Application.UseCases.Classrooms;
-using eSECAI.Application.DTOs;
+using esecai.Application.UseCases.Classrooms;
+using esecai.Application.DTOs;
 using System.Security.Claims;
 
-namespace eSECAI.API.Controllers;
+namespace esecai.API.Controllers;
 
 /// <summary>
 /// Classrooms Controller

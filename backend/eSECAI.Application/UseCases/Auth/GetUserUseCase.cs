@@ -1,10 +1,10 @@
-using eSECAI.Application.Interfaces;
-using eSECAI.Domain.Entities;
-using eSECAI.Domain.Exceptions;
+using esecai.Application.Interfaces;
+using esecai.Domain.Entities;
+using esecai.Domain.Exceptions;
 using System.Text.Json;
-using eSECAI.Application.DTOs;
+using esecai.Application.DTOs;
 
-namespace eSECAI.Application.UseCases.Auth;
+namespace esecai.Application.UseCases.Auth;
 
 /// <summary>
 /// Use case for user authentication and login operations

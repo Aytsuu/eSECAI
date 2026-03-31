@@ -1,8 +1,8 @@
-using eSECAI.Application.Interfaces;
-using eSECAI.Domain.Entities;
-using eSECAI.Application.DTOs;
+using esecai.Application.Interfaces;
+using esecai.Domain.Entities;
+using esecai.Application.DTOs;
 
-namespace eSECAI.Application.UseCases.Enrollments;
+namespace esecai.Application.UseCases.Enrollments;
 
 /// <summary>
 /// Use case for creating student enrollments in classrooms

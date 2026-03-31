@@ -3,7 +3,7 @@
 ## Structure
 - Store data access logic here, implementing interfaces defined in the Application layer.
 - Ensure the repository manages entity persistence and retrieval.
-- Place implementations in `eSECAI.Infrastructure.Repositories`.
+- Place implementations in `esecai.Infrastructure.Repositories`.
 
 ## Naming
 - Class names should be `[Entity]Repository` suffix (e.g., `AuthRepository`, `ClassroomRepository`).

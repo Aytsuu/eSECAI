@@ -1,8 +1,8 @@
-using eSECAI.Infrastructure.Data;
-using eSECAI.Application.Interfaces;
+using esecai.Infrastructure.Data;
+using esecai.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using eSECAI.Infrastructure.Hubs;
-using eSECAI.Domain.Entities;
+using esecai.Infrastructure.Hubs;
+using esecai.Domain.Entities;
 
 public class NotificationService : INotificationService {
     private readonly IHubContext<NotificationHub> _hubContext;

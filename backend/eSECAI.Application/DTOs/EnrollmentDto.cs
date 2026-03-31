@@ -1,5 +1,5 @@
 
-namespace eSECAI.Application.DTOs;
+namespace esecai.Application.DTOs;
 
 public record CreateEnrollmentDto(Guid classId);
 public record PendingEnrollment(

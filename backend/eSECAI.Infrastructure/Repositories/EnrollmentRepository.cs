@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using eSECAI.Infrastructure.Data;
-using eSECAI.Domain.Entities;
-using eSECAI.Application.Interfaces;
+using esecai.Infrastructure.Data;
+using esecai.Domain.Entities;
+using esecai.Application.Interfaces;
 
-namespace eSECAI.Infrastructure.Repositories;
+namespace esecai.Infrastructure.Repositories;
 
 /// <summary>
 /// Enrollment Repository

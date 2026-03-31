@@ -1,9 +1,9 @@
-using eSECAI.Application.Interfaces;
+using esecai.Application.Interfaces;
 using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 
-namespace eSECAI.Infrastructure.Services;
+namespace esecai.Infrastructure.Services;
 
 public class EmailService : IEmailService
 {
@@ -29,8 +29,8 @@ public class EmailService : IEmailService
 
     var mailMessage = new MailMessage
     {
-      From = new MailAddress(senderEmail!, "eSECAI Security"),
-      Subject = "Your eSECAI Verification Code",
+      From = new MailAddress(senderEmail!, "esecai Security"),
+      Subject = "Your esecai Verification Code",
       Body = $"<h2>Welcome!</h2><p>Your 6-digit verification code is: <strong>{otpCode}</strong></p><p>This code will expire in 5 minutes.</p>",
       IsBodyHtml = true
     };

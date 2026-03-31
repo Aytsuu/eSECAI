@@ -1,4 +1,4 @@
-using eSECAI.Domain.Entities;
+using esecai.Domain.Entities;
 
 public interface INotificationService
 {

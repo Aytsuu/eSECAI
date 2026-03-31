@@ -1,7 +1,7 @@
 
-using eSECAI.Domain.Entities;
+using esecai.Domain.Entities;
 
-namespace eSECAI.Application.Interfaces;
+namespace esecai.Application.Interfaces;
 
 public interface IEnrollmentRepository
 {

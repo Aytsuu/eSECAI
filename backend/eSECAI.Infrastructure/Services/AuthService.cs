@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Authentication.Google;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using eSECAI.Domain.Entities;
+using esecai.Domain.Entities;
 using System.Security.Cryptography;
-using eSECAI.Application.Interfaces;
+using esecai.Application.Interfaces;
 using System.Text.Json;
 
-namespace eSECAI.Infrastructure.Services;
+namespace esecai.Infrastructure.Services;
 
 /// <summary>
 /// Authentication Service

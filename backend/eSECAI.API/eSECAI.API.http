@@ -1,6 +1,6 @@
-@eSECAI.API_HostAddress = http://localhost:5251
+@esecai.API_HostAddress = http://localhost:5251
 
-GET {{eSECAI.API_HostAddress}}/weatherforecast/
+GET {{esecai.API_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

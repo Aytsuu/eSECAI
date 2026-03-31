@@ -34,7 +34,7 @@ export default function RootPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/10 bg-background/80 backdrop-blur-md">
         <div className="flex justify-between items-center mx-auto max-w-5xl py-4 px-6">
           <span className="font-bold text-xl tracking-tight cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            eSECAI
+            esecai
           </span>
           <ul className="hidden md:flex gap-8 text-sm font-medium text-muted-foreground">
             <li className="hover:text-foreground cursor-pointer transition-colors" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Home</li>

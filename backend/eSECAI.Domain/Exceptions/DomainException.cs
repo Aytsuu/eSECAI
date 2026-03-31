@@ -1,4 +1,4 @@
-namespace eSECAI.Domain.Exceptions;
+namespace esecai.Domain.Exceptions;
 
 public class DomainException : Exception
 {

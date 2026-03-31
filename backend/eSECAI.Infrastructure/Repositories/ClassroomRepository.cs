@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Logging;
-using eSECAI.Application.Interfaces;
-using eSECAI.Infrastructure.Data;
-using eSECAI.Domain.Entities;
+using esecai.Application.Interfaces;
+using esecai.Infrastructure.Data;
+using esecai.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace eSECAI.Infrastructure.Repositories;
+namespace esecai.Infrastructure.Repositories;
 
 /// <summary>
 /// Classroom Repository

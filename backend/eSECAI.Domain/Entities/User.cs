@@ -1,6 +1,6 @@
-using eSECAI.Domain.Exceptions;
+using esecai.Domain.Exceptions;
 
-namespace eSECAI.Domain.Entities;
+namespace esecai.Domain.Entities;
 
 /// <summary>
 /// User Entity

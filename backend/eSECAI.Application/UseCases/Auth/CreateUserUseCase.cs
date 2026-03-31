@@ -1,9 +1,9 @@
-using eSECAI.Domain.Entities;
-using eSECAI.Application.Interfaces;
+using esecai.Domain.Entities;
+using esecai.Application.Interfaces;
 using System.Security.Cryptography;
-using eSECAI.Application.DTOs;
+using esecai.Application.DTOs;
 
-namespace eSECAI.Application.UseCases.Auth;
+namespace esecai.Application.UseCases.Auth;
 
 /// <summary>
 /// Use case for creating a new user account

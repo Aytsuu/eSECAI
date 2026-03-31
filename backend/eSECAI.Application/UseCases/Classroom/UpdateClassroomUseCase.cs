@@ -1,7 +1,7 @@
-using eSECAI.Application.DTOs;
-using eSECAI.Application.Interfaces;
+using esecai.Application.DTOs;
+using esecai.Application.Interfaces;
 
-namespace eSECAI.Application.UseCases.Classrooms;
+namespace esecai.Application.UseCases.Classrooms;
 
 public class UpdateClassroomUseCase
 {
