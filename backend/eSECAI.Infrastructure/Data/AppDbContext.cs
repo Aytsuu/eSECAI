@@ -19,9 +19,6 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Classroom> Classrooms => Set<Classroom>();
-    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
-    public DbSet<Posting> Postings => Set<Posting>();
-    public DbSet<Submission> Submissions => Set<Submission>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,59 +61,7 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.user_id); // Index for finding classrooms by teacher
             entity.HasIndex(e => e.class_id); // Index for direct classroom lookup
         });
-
-        // Configure Enrollment entity mapping
-        modelBuilder.Entity<Enrollment>(entity =>
-        {
-
-            entity.HasKey(e => e.enroll_id);
-            entity.Property(e => e.enroll_created_at);
-            entity.Property(e => e.enroll_status).HasDefaultValue("pending");
-            entity.HasOne(e => e.classroom)
-                .WithMany()
-                .HasForeignKey(e => e.class_id)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-            entity.HasOne(e => e.user)
-                .WithMany()
-                .HasForeignKey(e => e.user_id)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-        });
-
-        // Configure Posting entity mapping
-        modelBuilder.Entity<Posting>(entity => 
-        {
-            entity.HasKey(e => e.post_id);
-            entity.Property(e => e.post_heading).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.post_details).IsRequired().HasMaxLength(1000);
-            entity.Property(e => e.post_created_at);
-            entity.Property(e => e.post_updated_at);
-            entity.HasOne(e => e.classroom)
-                .WithMany()
-                .HasForeignKey(e => e.class_id)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-        });
-
-        modelBuilder.Entity<Submission>(entity => 
-        {
-            entity.HasKey(e => e.sub_id);
-            entity.Property(e => e.sub_score).HasDefaultValue(0f);
-            entity.Property(e => e.sub_remark);
-            entity.Property(e => e.sub_created_at);
-            entity.HasOne(e => e.user)
-                .WithMany()
-                .HasForeignKey(e => e.user_id)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-            entity.HasOne(e => e.posting)
-                .WithMany()
-                .HasForeignKey(e => e.post_id)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-        });
-
+        
         modelBuilder.Entity<Notification>(entity => 
         {
             entity.HasKey(e => e.notif_id);

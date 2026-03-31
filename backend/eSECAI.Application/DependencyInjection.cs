@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using esecai.Application.UseCases.Classrooms;
 using esecai.Application.UseCases.Auth;
-using esecai.Application.UseCases.Enrollments;
 
 namespace esecai.Application;
 
@@ -31,13 +30,6 @@ public static class DependencyInjection
         services.AddScoped<UpdateUserUseCase>();
         services.AddScoped<VerifyUserUseCase>();
 
-        // Register Enrollment Use Cases
-        services.AddScoped<CreateEnrollmentUseCase>();
-        services.AddScoped<GetEnrollmentUseCase>();
-        services.AddScoped<UpdateEnrollmentUseCase>();
-        services.AddScoped<DeleteEnrollmentUseCase>();
-        services.AddScoped<GetClassroomEnrollmentsUseCase>();
-        
         return services;
     }
 }

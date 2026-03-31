@@ -11,16 +11,14 @@ namespace esecai.Application.UseCases.Classrooms;
 public class GetClassroomUseCase
 {
     private readonly IClassroomRepository _classroomRepo;
-    private readonly IEnrollmentRepository _enrollmentRepo;
 
     /// <summary>
     /// Initializes the GetClassroomUseCase with the classroom repository
     /// </summary>
     /// <param name="repository">Repository for classroom data operations</param>
-    public GetClassroomUseCase(IClassroomRepository classroomRepo, IEnrollmentRepository enrollmentRepo)
+    public GetClassroomUseCase(IClassroomRepository classroomRepo)
     {
         _classroomRepo = classroomRepo;
-        _enrollmentRepo = enrollmentRepo;
     }
 
     /// <summary>
@@ -60,15 +58,7 @@ public class GetClassroomUseCase
         {
             throw new KeyNotFoundException("Classroom not found");
         }
-
-        // Validate user 
-        var isEnrolled = await _enrollmentRepo.CheckUserEnrollment(classId, userId);
-
-        if (!isEnrolled && classroom.user_id != userId)
-        {
-            throw new UnauthorizedAccessException("You do not have access to this classroom.");
-        }
-
+        
         if (classroom.user == null)
         {
             throw new InvalidOperationException($"The creator data for classroom {classroom.class_id} was not loaded from the database.");

@@ -142,7 +142,6 @@ public static class DependencyInjection
         services.AddScoped<AuthService>();
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IClassroomRepository, ClassroomRepository>();
-        services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IRedisCacheService, RedisCacheService>();

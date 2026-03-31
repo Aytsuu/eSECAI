@@ -15,7 +15,6 @@ public class GetUserUseCase
     private readonly IAuthRepository _authRepository;
     private readonly IAuthService _authService;
     private readonly IClassroomRepository _classroomRepository;
-    private readonly IEnrollmentRepository _enrollmentRepository;
     private readonly VerifyUserUseCase _verifyUseCase;
     private readonly IRedisCacheService _redisCache;
 
@@ -30,7 +29,6 @@ public class GetUserUseCase
         IAuthRepository authRepository, 
         IAuthService authService,
         IClassroomRepository classroomRepository,
-        IEnrollmentRepository enrollmentRepository,
         VerifyUserUseCase verifyUseCase,
         IRedisCacheService redisCache
     )
@@ -38,7 +36,6 @@ public class GetUserUseCase
         _authRepository = authRepository;
         _authService = authService;
         _classroomRepository = classroomRepository;
-        _enrollmentRepository = enrollmentRepository;
         _verifyUseCase = verifyUseCase;
         _redisCache = redisCache;
     }

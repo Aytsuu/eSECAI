@@ -108,6 +108,8 @@ const ClassroomsContent = () => {
   const { mutateAsync: createClassroom } = useCreateClassroom();
   const { data: createdClassrooms } = useGetCreatedClassrooms();
 
+  console.log(createdClassrooms)
+
   React.useEffect(() => {
     setIsMounted(true);
   }, []);

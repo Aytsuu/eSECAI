@@ -13,17 +13,15 @@ public class DeleteClassroomUseCase
     /// Repository for classroom data operations
     /// </summary>
     private readonly IClassroomRepository _classroomRepo;
-    private readonly IEnrollmentRepository _enrollmentRepo;
     private readonly IMinioFileService _minioFileService;
 
     /// <summary>
     /// Initializes the DeleteClassroomUseCase with the classroom repository
     /// </summary>
     /// <param name="repository">Repository for classroom data operations</param>
-    public DeleteClassroomUseCase(IClassroomRepository classroomRepo, IEnrollmentRepository enrollmentRepo, IMinioFileService minioFileService) 
+    public DeleteClassroomUseCase(IClassroomRepository classroomRepo, IMinioFileService minioFileService) 
     {
         _classroomRepo = classroomRepo;
-        _enrollmentRepo = enrollmentRepo;
         _minioFileService = minioFileService;
     }
 
@@ -36,13 +34,6 @@ public class DeleteClassroomUseCase
     /// <exception cref="InvalidOperationException">Thrown if classroom has active students enrolled</exception>
     public async Task ExecuteDeleteClassroomAsync(Guid classId)
     {
-        // check for active enrollments
-        var hasEnrolledUser = await _enrollmentRepo.ClassHasEnrolledUser(classId);
-
-        if (hasEnrolledUser) {
-            throw new InvalidOperationException("Cannot delete a classroom with enrolled users.");
-        }
-
         // Delete the classroom
         var classroom = await _classroomRepo.GetClassroomDataAsync(classId);
 
