@@ -15,6 +15,9 @@ import {
   User,
   LucideIcon,
   CircleQuestionMark,
+  LayoutDashboard,
+  GraduationCap,
+  Settings
 } from "lucide-react";
 import {
   Popover,
@@ -37,20 +40,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "../ui/breadcrumb";
 import Link from "next/link";
-
-interface NavItem {
-  path: string;
-  title: string;
-}
+import { cn } from "@/lib/utils";
 
 interface DropdownItem {
   title: string;
@@ -58,20 +49,22 @@ interface DropdownItem {
   action: () => void;
 }
 
+const navLinks = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Classrooms",
+    url: "/classrooms",
+    icon: GraduationCap,
+  }
+];
+
 export const Header = () => {
   const { user, logout } = useAuth();
   const pathname = usePathname();
-  const split_path = pathname.split("/").slice(1);
-  const formattedPaths = split_path.map((pathName, index) => {
-    const firstLetter = pathName[0].toUpperCase();
-    const capitalizedHeader = firstLetter + pathName.slice(1);
-    const url = "/" + split_path.slice(0,index + 1).join("/");
-
-    return {
-      header: capitalizedHeader,
-      url: url,
-    };
-  });
 
   const [isOpenLogoutDialog, setIsOpenLogoutDialog] =
     React.useState<boolean>(false);
@@ -91,44 +84,50 @@ export const Header = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center bg-custom-primary-contrast py-2 px-5 border-b border-white/10">
-        <Breadcrumb>
-          <BreadcrumbList>
-            {formattedPaths.map((path, index) => {
-              if (index == formattedPaths.length - 1) {
-                return (
-                  <BreadcrumbItem key={`${path}-${index}`}>
-                    <BreadcrumbPage>
-                      <h1 className="font-medium text-base">{path.header}</h1>
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                );
-              }
-
+      <div className="flex justify-between items-center bg-background px-6 border-b border-border/50 sticky top-0 z-50 h-14">
+        <div className="flex items-center gap-8 h-full">
+          <Link href="/dashboard" className="flex items-center gap-2 mr-4">
+            <span className="font-bold text-xl tracking-tight">esecai</span>
+          </Link>
+          
+          <nav className="items-center gap-6 hidden md:flex h-full">
+            {navLinks.map((item) => {
+              const isActive = pathname.startsWith(item.url);
               return (
-                <React.Fragment key={`${path}-${index}`}>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link href={path.url}>
-                        <h1 className="font-medium text-base">{path.header}</h1>
-                      </Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator/>
-                </React.Fragment>
+                <Link
+                  key={item.title}
+                  href={item.url}
+                  className={cn(
+                    "flex items-center gap-2 py-4 text-sm font-medium transition-colors relative",
+                    isActive 
+                      ? "text-foreground" 
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <item.icon size={16} />
+                  {item.title}
+                  {isActive && (
+                    <div className="absolute bottom-0 left-0 w-full h-0.5 bg-linear-to-r from-blue-500 to-indigo-500 rounded-t-full" />
+                  )}
+                </Link>
               );
             })}
-          </BreadcrumbList>
-        </Breadcrumb>
-        <div className="flex gap-4 items-center">
+          </nav>
+        </div>
+
+        <div className="flex gap-4 items-center h-full">
+          <Link href="/settings" className="flex items-center">
+            <Settings size={20} className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" />
+          </Link>
+          
           <CircleQuestionMark
-            size={22}
-            className="cursor-pointer hover:scale-105"
+            size={20}
+            className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
           />
 
           <Popover>
             <PopoverTrigger>
-              <Bell size={22} className="cursor-pointer hover:scale-105" />
+              <Bell size={20} className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" />
             </PopoverTrigger>
             <PopoverContent>
               <PopoverHeader>
@@ -142,31 +141,27 @@ export const Header = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <div className="flex items-center gap-4 cursor-pointer p-2 hover:bg-sidebar-accent rounded-sm group">
-                <Avatar>
-                  <AvatarImage src={user?.displayImage} alt="@shadcn" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div className="text-start flex flex-col  leading-5">
-                  <span className="font-medium">
-                    {user?.displayName ?? "User"}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {user?.email}
-                  </span>
+              <div className="flex items-center gap-4 cursor-pointer p-1 rounded-full group hover:bg-secondary/50 transition-colors">
+                <div className="p-0.5 rounded-full bg-linear-to-r from-blue-500 to-indigo-500">
+                  <Avatar className="w-8 h-8 border-2 border-background">
+                    <AvatarImage src={user?.displayImage} alt="User Avatar" />
+                    <AvatarFallback className="text-xs">
+                      {user?.displayName?.charAt(0).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-40" align="start">
+            <DropdownMenuContent className="w-40" align="end">
               <DropdownMenuGroup>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 {dropdown_items.map((item: DropdownItem, index: number) => (
                   <DropdownMenuItem
                     key={index}
-                    className="cursor-pointer"
-                    onClick={item.action}
+                    className="cursor-pointer focus:bg-blue-500/10 focus:text-blue-600 dark:focus:text-blue-400"
+                    onSelect={item.action}
                   >
-                    <item.icon /> {item.title}
+                    <item.icon className="mr-2" size={16} /> {item.title}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuGroup>
@@ -177,7 +172,7 @@ export const Header = () => {
 
       {/* Logout Confirmation Dialog */}
       <AlertDialog open={isOpenLogoutDialog}>
-        <AlertDialogContent className="bg-custom-primary-contrast">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Log out of your account?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -190,7 +185,7 @@ export const Header = () => {
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 text-white hover:bg-red-600"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={logout}
             >
               Yes, Logout

@@ -22,9 +22,10 @@ import { emailVerifySchema } from "@/schemas/auth.schema";
 import { AuthService } from "@/services/auth.service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import Cookies from "js-cookie";
@@ -64,7 +65,14 @@ export default () => {
   };
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center bg-custom-primary">
+    <div className="w-screen h-screen flex flex-col justify-center items-center bg-custom-primary relative">
+      <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Link>
+      <div className="mb-6">
+        <span className="font-bold text-3xl tracking-tight">esecai</span>
+      </div>
       <Form {...form}>
         <form
           onSubmit={(e) => {

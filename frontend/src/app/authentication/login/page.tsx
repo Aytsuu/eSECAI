@@ -27,7 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Eye, EyeClosed, Loader2, LucideIcon } from "lucide-react";
+import { Eye, EyeClosed, Loader2, LucideIcon, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from 'js-cookie';
@@ -98,7 +98,14 @@ export default () => {
   };
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center bg-custom-primary">
+    <div className="w-screen h-screen flex flex-col justify-center items-center bg-custom-primary relative">
+      <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </Link>
+      <div className="mb-6">
+        <span className="font-bold text-3xl tracking-tight">esecai</span>
+      </div>
       <Form {...form}>
         <form
           onSubmit={(e) => {
@@ -156,7 +163,7 @@ export default () => {
                   )}
                 />
 
-                <span className="text-right cursor-pointer text-sm text-white/70 hover:underline"
+                <span className="text-right cursor-pointer text-sm text-slate-500 hover:text-indigo-600 hover:underline"
                   onClick={() => router.push("login/identify")}
                 >
                   Forgot Password?
@@ -165,34 +172,34 @@ export default () => {
 
               <div className="w-full flex flex-col gap-4">
                 <Button
-                  className="h-10 bg-blue-600 hover:bg-blue-700 text-white text-base cursor-pointer"
+                  className="h-10 text-base cursor-pointer"
                   type={"submit"}
                   disabled={isSubmitting}
                 >
                   {isSubmitting && <Loader2 className="animate-spin"/>}
                   Login
                 </Button>
-                <div className="mx-auto text-sm flex gap-1 text-white/70 items-center">
+                <div className="mx-auto text-sm flex gap-1 text-slate-500 items-center">
                   Don't have an account?
                   <Link
                     href={"signup"}
-                    className="text-blue-500 font-medium hover:underline"
+                    className="text-indigo-600 font-medium hover:underline"
                   >
                     Create
                   </Link>
                 </div>
               </div>
 
-              <div className="relative w-full">
+              <div className="relative w-full flex items-center justify-center py-2">
                 <Separator />
-                <p className="absolute left-1/2 -translate-1/2 bg-custom-primary-contrast px-2 text-xs text-white/20">
+                <p className="absolute bg-white px-2 text-xs text-slate-400 font-medium">
                   OR
                 </p>
               </div>
 
               <Link
                 href={`${api.defaults.baseURL}/api/auth/login-google?returnUrl=${process.env.NODE_ENV == "development" ? "http://localhost:3000" : process.env.NEXT_PUBLIC_URL}`}
-                className="bg-primary text-primary-foreground font-medium flex justify-center items-center gap-2 border w-full h-10 rounded-lg"
+                className="bg-white hover:bg-slate-50 text-slate-700 font-medium flex justify-center items-center gap-2 border border-slate-200 w-full h-10 rounded-lg shadow-sm transition-colors"
               >
                 <FcGoogle size={22} />
                 Sign in with Google

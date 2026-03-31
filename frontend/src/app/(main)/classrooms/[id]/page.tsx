@@ -663,7 +663,6 @@ export default () => {
             <Button
               onClick={handleUpdateClassroom}
               disabled={isUpdatingClassroom}
-              className="bg-blue-600 text-white hover:bg-blue-700"
             >
               {isUpdatingClassroom ? "Updating..." : "Update class"}
             </Button>
@@ -750,7 +749,7 @@ export default () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive text-white hover:bg-destructive/90"
               onClick={handleRemoveClassroom}
             >
               Delete
