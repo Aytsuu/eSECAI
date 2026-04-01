@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using esecai.Infrastructure.Data;
 using esecai.Application.Interfaces;
+using esecai.Application.DTOs;
 using esecai.Infrastructure.Services;
 using esecai.Infrastructure.Repositories;
 using NRedisStack;
@@ -137,6 +138,7 @@ public static class DependencyInjection
             .Build());
         
         services.AddSignalR();
+        services.Configure<GeminiOptions>(config.GetSection(GeminiOptions.SectionName));      
 
         // Register Repository and External Services
         services.AddScoped<AuthService>();
@@ -147,7 +149,7 @@ public static class DependencyInjection
         services.AddScoped<IRedisCacheService, RedisCacheService>();
         services.AddScoped<IMinioFileService, MinioFileService>();
         services.AddScoped<INotificationService, NotificationService>();
-        services.AddScoped<IPdfService, PdfService>();
+        services.AddScoped<IPdfService, PdfService>();  
         services.AddScoped<IGeminiClientService, GeminiClientService>();
 
         return services;
