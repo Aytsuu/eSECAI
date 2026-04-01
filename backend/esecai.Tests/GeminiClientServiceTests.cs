@@ -20,7 +20,7 @@ public class GeminiClientServiceTests
         var options = Options.Create(new GeminiOptions
         {
             ApiKey = "",
-            Model = "gemini-3-flash-preview"
+            Model = ""
         });
         
         var loggerMock = new Mock<ILogger<GeminiClientService>>();
