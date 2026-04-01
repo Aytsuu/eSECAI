@@ -19,7 +19,7 @@ public class GeminiClientServiceTests
         // Arrange
         var options = Options.Create(new GeminiOptions
         {
-            ApiKey = "AIzaSyD9R09rivzz0v2IvtkmAWwoWo2vawR0nk0",
+            ApiKey = "",
             Model = "gemini-3-flash-preview"
         });
         
