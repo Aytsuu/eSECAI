@@ -147,6 +147,8 @@ public static class DependencyInjection
         services.AddScoped<IRedisCacheService, RedisCacheService>();
         services.AddScoped<IMinioFileService, MinioFileService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IPdfService, PdfService>();
+        services.AddScoped<IGeminiClientService, GeminiClientService>();
 
         return services;
     }

@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "esecai.Domain", "esecai.Domain\esecai.Domain.csproj", "{3D55D507-87D0-4117-9F38-C24222DCA913}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "esecai.Infrastructure", "esecai.Infrastructure\esecai.Infrastructure.csproj", "{3DF6C032-22CB-446D-B76A-983C052C54E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "esecai.Tests", "esecai.Tests\esecai.Tests.csproj", "{711F3560-6A76-4052-B7F8-B093D7CE4358}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +38,9 @@ Global
 		{3DF6C032-22CB-446D-B76A-983C052C54E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DF6C032-22CB-446D-B76A-983C052C54E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DF6C032-22CB-446D-B76A-983C052C54E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{711F3560-6A76-4052-B7F8-B093D7CE4358}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{711F3560-6A76-4052-B7F8-B093D7CE4358}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{711F3560-6A76-4052-B7F8-B093D7CE4358}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{711F3560-6A76-4052-B7F8-B093D7CE4358}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
