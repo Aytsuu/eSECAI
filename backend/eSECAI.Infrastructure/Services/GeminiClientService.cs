@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using esecai.Application.DTOs;
+using esecai.Infrastructure.Services.Docs;
 
 namespace esecai.Infrastructure.Services;
 
@@ -36,7 +37,7 @@ public class GeminiClientService : IGeminiClientService
     /// </summary>
     public async Task<string> GenerateAsync(
         string prompt,
-        int maxTokens = 4096,
+        int maxTokens = 8912,
         CancellationToken ct = default)
     {
         _logger.LogDebug("Gemini text generation: {Chars} chars, model: {Model}",
@@ -45,11 +46,11 @@ public class GeminiClientService : IGeminiClientService
         var config = new GenerateContentConfig
         {
             ResponseMimeType = "application/json", // Forces JSON output — no markdown fences
-            Temperature      = 0.1f,               // Near-deterministic for extraction tasks
+            Temperature      = 0.0f,               // Near-deterministic for extraction tasks
             MaxOutputTokens  = maxTokens,
             SystemInstruction = new Content 
             { 
-                Parts = new List<Part> { new Part { Text = "Extract, analyze, and organize the text, return only a JSON format data." } } 
+                Parts = new List<Part> { new Part { Text = GeminiPrompts.AnswerKeyExtractionSystem } } 
             }
         };
  
@@ -94,11 +95,11 @@ public class GeminiClientService : IGeminiClientService
         var config = new GenerateContentConfig
         {
             ResponseMimeType = "application/json",
-            Temperature      = 0.1f,
+            Temperature      = 0.0f,
             MaxOutputTokens  = maxTokens,
             SystemInstruction = new Content 
             { 
-                Parts = new List<Part> { new Part { Text = "Your system instructions here." } } 
+                Parts = new List<Part> { new Part { Text = "" } } 
             }
         };
  
@@ -131,15 +132,22 @@ public class GeminiClientService : IGeminiClientService
  
     private static string ExtractText(GenerateContentResponse response)
     {
-        var text = response.Candidates?[0]?.Content?.Parts?[0]?.Text;
- 
+        var candidate = response.Candidates?[0];
+        var text = candidate?.Content?.Parts?[0]?.Text;
+        var finishReason = candidate?.FinishReason;
+
         if (string.IsNullOrWhiteSpace(text))
         {
-            var reason = response.Candidates?[0]?.FinishReason?.ToString() ?? "unknown";
             throw new InvalidOperationException(
-                $"Gemini returned empty response. FinishReason: {reason}");
+                $"Gemini returned empty response. FinishReason: {finishReason}");
         }
- 
+
+        // Explicitly catch if the model truncated the output
+        if (finishReason == FinishReason.MaxTokens)
+        {
+            throw new Exception("Generation truncated: The output reached the MaxOutputTokens limit.");
+        }
+
         return text;
     }
  

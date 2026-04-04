@@ -19,8 +19,8 @@ public class GeminiClientServiceTests
         // Arrange
         var options = Options.Create(new GeminiOptions
         {
-            ApiKey = "",
-            Model = ""
+            ApiKey = "AIzaSyCh_zWeOj89pTNrJVnrqk-dyXrEg_SZ4a4",
+            Model = "gemini-3.1-flash-lite-preview"
         });
         
         var loggerMock = new Mock<ILogger<GeminiClientService>>();
@@ -47,7 +47,7 @@ public class GeminiClientServiceTests
         if (result != null)
         {
             string outputDirectory = "TestOutput";
-            string outputFilePath = Path.Combine(outputDirectory, "extracted_assessment_result.md");
+            string outputFilePath = Path.Combine(outputDirectory, "structured_output.json");
             await File.WriteAllTextAsync(outputFilePath, result);
         }
 

@@ -10,6 +10,7 @@ using esecai.Infrastructure.Data;
 using esecai.Application.Interfaces;
 using esecai.Application.DTOs;
 using esecai.Infrastructure.Services;
+using esecai.Infrastructure.Services.Docs;
 using esecai.Infrastructure.Repositories;
 using NRedisStack;
 using StackExchange.Redis;

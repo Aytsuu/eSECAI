@@ -60,7 +60,7 @@ public class PdfServiceTests
     public void FullAssessmentExtraction_WithValidPdf_ReturnsExtractedData()
     {
         // Arrange
-        string inputFilePath = "proposal.pdf";
+        string inputFilePath = "exam.pdf";
         Assert.True(File.Exists(inputFilePath), $"Test input file not found: {inputFilePath}");
 
         // Act
