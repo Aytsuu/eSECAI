@@ -71,7 +71,7 @@ public class ClassroomsController : ControllerBase
             // Extract userId string from access token
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            // Safely parse to string to type Guid
+            // Safely parse string to type Guid
             if (!Guid.TryParse(userIdString, out Guid userId))
             {
                 return Unauthorized(new { message = "Invalid or missing user ID in token." });

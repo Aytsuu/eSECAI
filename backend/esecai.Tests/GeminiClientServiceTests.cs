@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,13 +14,20 @@ namespace esecai.Tests;
 
 public class GeminiClientServiceTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public GeminiClientServiceTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     [Fact]
     public async Task GenerateAsync_WithExtractedAssessment_ReturnsText()
     {
         // Arrange
         var options = Options.Create(new GeminiOptions
         {
-            ApiKey = "AIzaSyCh_zWeOj89pTNrJVnrqk-dyXrEg_SZ4a4",
+            ApiKey = "AIzaSyCgEOCsJPFF5stOJ-6hmaY3FKdNCDDtLiI",
             Model = "gemini-3.1-flash-lite-preview"
         });
         
@@ -31,12 +39,7 @@ public class GeminiClientServiceTests
         var service = new GeminiClientService(options, loggerMock.Object);
 
         string filePath = "TestOutput/extracted_assessment.txt";
-        
-        // Create a dummy file if it doesn't exist for the test to run
-        if (!File.Exists(filePath))
-        {
-            await File.WriteAllTextAsync(filePath, "Sample extracted assessment text for testing.");
-        }
+        Assert.True(File.Exists(filePath), $"Test input file not found: {filePath}");
         
         var prompt = await File.ReadAllTextAsync(filePath);
 
@@ -46,9 +49,20 @@ public class GeminiClientServiceTests
         // Output the result as a .md file
         if (result != null)
         {
-            string outputDirectory = "TestOutput";
+            // Pointing directly to the project root directory rather than the bin folder
+            string baseDir = AppContext.BaseDirectory;
+            string projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
+            string outputDirectory = Path.Combine(projectRoot, "TestOutput");
+            
+            if (!Directory.Exists(outputDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+            
             string outputFilePath = Path.Combine(outputDirectory, "structured_output.json");
             await File.WriteAllTextAsync(outputFilePath, result);
+            
+            _output.WriteLine($"\nFile successfully saved to: {outputFilePath}");
         }
 
         // Assert

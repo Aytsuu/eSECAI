@@ -37,7 +37,7 @@ public class GeminiClientService : IGeminiClientService
     /// </summary>
     public async Task<string> GenerateAsync(
         string prompt,
-        int maxTokens = 8912,
+        int maxTokens = 8192,
         CancellationToken ct = default)
     {
         _logger.LogDebug("Gemini text generation: {Chars} chars, model: {Model}",
@@ -53,13 +53,33 @@ public class GeminiClientService : IGeminiClientService
                 Parts = new List<Part> { new Part { Text = GeminiPrompts.AnswerKeyExtractionSystem } } 
             }
         };
+
+        System.Console.WriteLine($"[DEBUG] System Prompt Length: {config.SystemInstruction?.Parts?[0]?.Text?.Length ?? 0}");
+        System.Console.WriteLine($"[DEBUG] User Prompt Length: {prompt.Length}");
  
-        var response = await _client.Models.GenerateContentAsync(
-            model:    _options.Model,
-            contents: prompt,
-            config:   config);
- 
-        return ExtractText(response);
+        System.Console.WriteLine("=== GEMINI API CALL DIAGNOSTICS ===");
+        System.Console.WriteLine($"Model: {_options.Model}");
+        System.Console.WriteLine($"Max Tokens Requested: {config.MaxOutputTokens}");
+        System.Console.WriteLine($"API Key Starts With: {_options.ApiKey?.Substring(0, Math.Min(5, _options.ApiKey?.Length ?? 0))}...");
+        System.Console.WriteLine("===================================");
+
+        try
+        {
+            var response = await _client.Models.GenerateContentAsync(
+                model: _options.Model,
+                contents: prompt,
+                config: config);
+
+            return ExtractText(response);
+        }
+        catch (Exception ex) when (ex.Message.Contains("MaxOutputTokens"))
+        {
+            // 2. We need to see what the AI was writing when it died!
+            // This requires catching the raw response if your SDK allows it, 
+            // but since the exception is thrown, we can look at the stack trace.
+            System.Console.WriteLine("CRITICAL: Truncated! Check the API Key tier and model.");
+            throw;
+        }
     }
  
     // ── FILE UPLOAD + VISION GENERATION ──────────────────────────────────────

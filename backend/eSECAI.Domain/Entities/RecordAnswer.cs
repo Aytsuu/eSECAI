@@ -8,7 +8,7 @@ public class RecordAnswer
     public Guid ra_id { get; set; }
 
     [Column(TypeName = "jsonb")]
-    public string ra_student_ans { get; set; } = default!;
+    public string ra_student_ans { get; set; } = "null";
 
     public float ra_awarded_pts { get; set; }
     public float ra_ai_confidence { get; set; }
@@ -17,7 +17,7 @@ public class RecordAnswer
     public float ra_teacher_op { get; set; }
     
     [Column(TypeName = "jsonb")]
-    public string ra_raw_response { get; set; } = default!;
+    public string ra_raw_response { get; set; } = "null";
 
     public Guid quest_id { get; set; }
     public Guid rec_id { get; set; }
@@ -42,12 +42,12 @@ public class RecordAnswer
         return new RecordAnswer
         {
             ra_id = Guid.NewGuid(),
-            ra_student_ans = studentAnswer,
+            ra_student_ans = string.IsNullOrWhiteSpace(studentAnswer) ? "null" : studentAnswer,
             ra_awarded_pts = awardedPts,
             ra_ai_confidence = aiConfidence,
             ra_feedback = feedback,
             ra_teacher_op = teacherOP,
-            ra_raw_response = rawResponse,
+            ra_raw_response = string.IsNullOrWhiteSpace(rawResponse) ? "null" : rawResponse,
             quest_id = questId,
             rec_id = recId
         };

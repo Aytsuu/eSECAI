@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using esecai.Infrastructure.Data;
@@ -11,9 +12,11 @@ using esecai.Infrastructure.Data;
 namespace esecai.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260404054457_RemoveRubricMetadata")]
+    partial class RemoveRubricMetadata
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,8 +72,6 @@ namespace esecai.Infrastructure.Migrations
                     b.HasKey("ass_id");
 
                     b.HasIndex("Questionquest_id");
-
-                    b.HasIndex("ass_id");
 
                     b.HasIndex("class_id");
 
@@ -171,10 +172,6 @@ namespace esecai.Infrastructure.Migrations
 
                     b.Property<int>("quest_num")
                         .HasColumnType("integer");
-
-                    b.Property<string>("quest_rubric")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
 
                     b.Property<string>("quest_text")
                         .IsRequired()

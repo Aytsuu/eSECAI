@@ -76,7 +76,9 @@ public class PdfServiceTests
         var extractionResult = _pdfService.ExtractFromDigitalPdf(fileStream);
 
         // 3. Save extracted text to output file
-        string outputDirectory = "TestOutput";
+        string baseDir = AppContext.BaseDirectory;
+        string projectRoot = Path.GetFullPath(Path.Combine(baseDir, "..", "..", ".."));
+        string outputDirectory = Path.Combine(projectRoot, "TestOutput");
         if (!Directory.Exists(outputDirectory))
         {
             Directory.CreateDirectory(outputDirectory);

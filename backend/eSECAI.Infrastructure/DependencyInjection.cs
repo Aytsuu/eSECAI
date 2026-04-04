@@ -44,6 +44,9 @@ public static class DependencyInjection
                 b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
             )); 
 
+        // UnitOfWork and Repositories
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
         // Configure Redis Cache Connection
         services.AddSingleton<IConnectionMultiplexer>(
             ConnectionMultiplexer.Connect(
@@ -150,8 +153,10 @@ public static class DependencyInjection
         services.AddScoped<IRedisCacheService, RedisCacheService>();
         services.AddScoped<IMinioFileService, MinioFileService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IAssessmentRepository, AssessmentRepository>();
         services.AddScoped<IPdfService, PdfService>();  
         services.AddScoped<IGeminiClientService, GeminiClientService>();
+        services.AddScoped<IQuestionRepository, QuestionRepository>();
 
         return services;
     }

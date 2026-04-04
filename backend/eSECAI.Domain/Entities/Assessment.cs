@@ -9,10 +9,7 @@ public class Assessment
     public string ass_title { get; set; } = default!;
     public string ass_type { get; set; } = default!;
     public string ass_answer_key_url { get; set; } = default!;
-
-    [Column(TypeName = "jsonb")]
-    public string ass_rubric_meta { get; set; } = default!;
-
+    public string ass_instruction { get; set; } = default!;
     public float ass_total_points { get; set; }
     public string ass_status { get; set; } = default!;
     public DateTime ass_created_at { get; set; }
@@ -30,7 +27,7 @@ public class Assessment
         string title, 
         string type, 
         string answerKey, 
-        string rubricMeta, 
+        string instruction, 
         float totalPoints, 
         Guid classId
     )
@@ -41,7 +38,7 @@ public class Assessment
             ass_title = title,
             ass_type = type,
             ass_answer_key_url = answerKey,
-            ass_rubric_meta = rubricMeta,
+            ass_instruction = instruction,
             ass_total_points = totalPoints,
             class_id = classId
         };

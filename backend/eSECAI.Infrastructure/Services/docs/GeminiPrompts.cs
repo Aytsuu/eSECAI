@@ -28,56 +28,55 @@ public static class GeminiPrompts
         - Wording: Preserve the exact original wording of every question and answer choice. 
         - Types: Accurately label the question type (mcq, true_false, fill_blank, matching, essay, problem_solving, hand_tracing, etc.).
         - Missing Data: If a point value or answer is not found in the document, explicitly set it to `null`. Do not guess or infer default values.
-        - Matching Type: Extract "Column A" and "Column B" as separate, distinct arrays with their original id/letter labels intact.
         - Multiple Choice: Extract all choices as an ordered list, preserving the A/B/C/D labels.
         - Cross-referencing: If the document contains an Answer Key at the end, you must inject those answers into the specific question objects they belong to.
         - New Lines (CRITICAL): When extracting text that contains line breaks (especially in programming code, essay prompts, or multi-line word problems), you MUST encode those line breaks explicitly as `\n` within the JSON strings to ensure valid JSON formatting. Do not use actual unescaped newlines inside the JSON string values.
 
         NORMALIZATION:
         - Type value must be normalized (e.g., Midterm Examination -> exam)
+        - "TRUE" or "FALSE" answers must be normalized to "T" or "F"
 
         SCHEMA:
-        [TOP-LEVEL METADATA]
         {
-            "title": "Programming 1 | Midterm Examination",
-            "type": "exam",
-            "total_points": "100",
-            "instructions": "Read all questions carefully before answering. Write your answers legibly. Erasures are not allowed -- use correction fluid only. Strictly NO CHEATING. Any form of dishonesty will result in a grade of ZERO (0) for the entire exam.",
-        }
-
-        [MULTIPLE CHOICE/ TRUE OR FALSE/FILL-IN THE BLANKS / HAND TRACING / CODE ANALYSIS]
-        {
-          "section_name": "Test I: Multiple Choice",
-          "instructions": "Circle the letter of the best answer. Each item is worth 2 points.",
-          "questions": [
-            { "number": 1, "text": "Which of the following is NOT a valid data type in C#?", "type": "mcq", "points": 2, "choices": ["A. int", "B. float", "C. character", "D. bool"], "answer": "C", "confidence": 1.0 },
+          [TOP-LEVEL METADATA]
+          "title": "Programming 1 | Midterm Examination",
+          "type": "exam",
+          "t_pts": "100",
+          "inst": "Read all questions carefully before answering. Write your answers legibly. Erasures are not allowed -- use correction fluid only. Strictly NO CHEATING. Any form of dishonesty will result in a grade of ZERO (0) for the entire exam.",
+          "sections": [
+            [MULTIPLE CHOICE/ TRUE OR FALSE/FILL-IN THE BLANKS / MATCHING TYPE/ HAND TRACING / CODE ANALYSIS]
+            {
+              "sec": "Test I: Multiple Choice",
+              "inst": "Circle the letter of the best answer. Each item is worth 2 points.",
+              "qts": [
+                { "num": 1, "txt": "Which of the following is NOT a valid data type in C#?", "type": "mcq", "pts": 2, "chs": ["A. int", "B. float", "C. character", "D. bool"], "ans": "C", "conf": 1.0 },
+              ]
+            }
+            [PROGRAMMING / PROBLEM SOLVING / ESSAY / SHORT ANSWER]
+            {
+              "sec": "Test VI: Programming",
+              "inst": "Write a complete and working C# console program for each problem. Follow proper naming conventions, indentation, and syntax. Partial credit may be given for correct logic even with minor syntax errors. Each item is worth 5 points.",
+              "qts": [
+                { "num": 1, "txt": "Write a C# program that asks the user to input 5 integers and displays their sum, average, highest value, and lowest value.", "type": "problem_solving", "pts": 5, "rub": "Correct logic and algorithm (2 pts), Correct class/method structure (1 pt), Correct input/output handling (1 pt), Proper indentation (1 pt)", "conf": 1.0 },
+              ]
+            }
           ]
         }
 
-        [MATCHING TYPE]
-        {
-          "section_name": "Test IV: Matching Type",
-          "instructions": "Match Column A with the correct term/description in Column B. Write only the letter of your answer on the space provided. Each correct match is worth 1 point. Each letter in Column B may be used only ONCE.",
-          "column_a": [
-            { "id": 1, "text": "Defines the blueprint of an object" },
-          ],
-          "column_b": [
-            { "id": "A", "text": "abstract class" },
-          ],
-          "answer_key": { "1" : "A"}
-        }
-
-        [PROGRAMMING / PROBLEM SOLVING / ESSAY / SHORT ANSWER]
-        {
-          "section_name": "Test VI: Programming",
-          "instructions": "Write a complete and working C# console program for each problem. Follow proper naming conventions, indentation, and syntax. Partial credit may be given for correct logic even with minor syntax errors. Each item is worth 5 points.",
-          "questions": [
-            { "number": 1, "text": "Write a C# program that asks the user to input 5 integers and displays their sum, average, highest value, and lowest value.", "type": "problem_solving", "points": 5, "rubric": "Correct logic and algorithm (2 pts), Correct class/method structure (1 pt), Correct input/output handling (1 pt), Proper indentation (1 pt)", "confidence": 1.0 },
-          ]
-        }
+        MAPPING ATTRIBUTES:
+        - t_pts > total points
+        - inst > instructions
+        - sec > section name
+        - qts > questions
+        - num > number
+        - txt > text
+        - pts > points
+        - chs > choices
+        - ans > answer
+        - conf > confidence
         
         IMPORTANT:
-        Top-level metadata should only include "title", "type", "total_points", and "instructions". 
+        Top-level metadata should only include "title", "type", "t_pts", and "inst". 
         Do not simply copy the values in the schema, it is a high level reference and must be treated as a placeholder.
 
         CONFIDENCE SCORING:

@@ -57,7 +57,7 @@ public class AppDbContext : DbContext
             entity.HasOne(e => e.user)
                 .WithMany(e => e.classrooms)
                 .HasForeignKey(e => e.user_id)
-                .OnDelete(DeleteBehavior.Cascade) // Delete classrooms when teacher is deleted
+                .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
             entity.Property(e => e.class_created_at);
             entity.Property(e => e.class_updated_at);
@@ -71,7 +71,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.ass_title);
             entity.Property(e => e.ass_type).HasMaxLength(20);
             entity.Property(e => e.ass_answer_key_url);
-            entity.Property(e => e.ass_rubric_meta);
+            entity.Property(e => e.ass_instruction);
             entity.Property(e => e.ass_total_points);
             entity.Property(e => e.ass_status).HasDefaultValue("draft");
             entity.Property(e => e.ass_created_at);
@@ -81,6 +81,7 @@ public class AppDbContext : DbContext
                 .HasForeignKey(e => e.class_id)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+            entity.HasIndex(e => e.ass_id);
         });
 
         modelBuilder.Entity<Question>(entity => 
@@ -90,6 +91,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.quest_type).HasMaxLength(20);
             entity.Property(e => e.quest_text);
             entity.Property(e => e.quest_correct_answer);
+            entity.Property(e => e.quest_rubric);
             entity.Property(e => e.quest_max_points);
             entity.Property(e => e.quest_ai_confidence);
             entity.HasOne(e => e.assessment)
@@ -167,7 +169,7 @@ public class AppDbContext : DbContext
             // If we found one, update it
             if (updatedAtProperty != null && updatedAtProperty.ClrType == typeof(DateTime))
             {
-                if (entityEntry.State == EntityState.Modified)
+                if (entityEntry.State == EntityState.Modified || entityEntry.State == EntityState.Added)
                 {
                     // We use updatedAtProperty.Name to dynamically pass the exact property name we found
                     entityEntry.Property(updatedAtProperty.Name).CurrentValue = DateTime.UtcNow;

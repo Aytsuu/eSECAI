@@ -11,7 +11,9 @@ public class Question
     public string quest_text { get; set; } = default!;
     
     [Column(TypeName = "jsonb")]
-    public string quest_correct_answer { get; set; } = default!;
+    public string quest_correct_answer { get; set; } = "null";
+    [Column(TypeName = "jsonb")]
+    public string quest_rubric { get; set; } = "null";
 
     public float quest_max_points { get; set; }
     public float quest_ai_confidence { get; set; }
@@ -31,6 +33,7 @@ public class Question
         string type,
         string text,
         string answer,
+        string rubric,
         float maxPoints,
         float aiConfidence,
         Guid assId
@@ -42,7 +45,8 @@ public class Question
             quest_num = num,
             quest_type = type,
             quest_text = text,
-            quest_correct_answer = answer,
+            quest_correct_answer = string.IsNullOrWhiteSpace(answer) ? "null" : answer,
+            quest_rubric = string.IsNullOrWhiteSpace(rubric) ? "null" : rubric,    
             quest_max_points = maxPoints,
             quest_ai_confidence = aiConfidence,
             ass_id = assId

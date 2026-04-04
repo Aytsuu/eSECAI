@@ -1,0 +1,453 @@
+REPUBLIC OF THE PHILIPPINES
+CEBU TECHNOLOGICAL UNIVERSITY
+Main Campus -- Cebu City
+College of Information Technology and Computer Science 
+
+CITE 201 -- Programming 1
+MIDTERM EXAMINATION
+Second Semester, School Year 2025-2026 
+SCORE / 100
+
+GRADE 
+
+CHECKED BY 
+
+Name: _______________________________ Course & Year: _______________ Date:
+_______________
+Section: _____________________ Instructor: _______________________________
+
+GENERAL INSTRUCTIONS:
+Read all questions carefully before answering. Write your answers legibly. Erasures are not allowed --
+use correction fluid only. Strictly NO CHEATING. Any form of dishonesty will result in a grade of ZERO
+(0) for the entire exam. Total: 100 points.
+
+Test I: Multiple Choice (20 pts)
+
+Directions: Circle the letter of the best answer. Each item is worth 2 points.
+
+1.  Which of the following is NOT a valid data type in C#? (2 pts) 
+A. int 
+B. float 
+C. character 
+D. bool
+2.  What keyword is used to declare a constant in C#? (2 pts) 
+A. static 
+B. final 
+C. const 
+D. readonly
+3.  What is the output of the following code? Console.WriteLine(10 % 3); (2 pts) 
+A. 3 
+B. 1 
+C. 0 
+D. 3.33
+4.  Which control structure is used to execute a block of code a fixed number of times? (2 pts) 
+A. while loop 
+B. do-while loop 
+C. for loop 
+D. if-else
+5.  What does OOP stand for? (2 pts) 
+A. Object-Oriented Programming 
+B. Object-Oriented Processing
+
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026 | Page 1 
+ C. Operational Object Protocol 
+D. Ordered Object Pattern
+6.  Which access modifier makes a class member accessible only within the same class? (2 pts) 
+A. public 
+B. protected 
+C. internal 
+D. private
+7.  In C#, which symbol is used to access a member of an object? (2 pts) 
+A. -> 
+B. :: 
+C. . 
+D. #
+8.  What is the default value of an int variable in C#? (2 pts) 
+A. null 
+B. undefined 
+C. 0 
+D. -1
+9.  Which of the following is the correct way to declare a single-dimensional array in C#? (2 pts) 
+A. int array[]; 
+B. int[] array; 
+C. array int[]; 
+D. int array[10];
+10.  What is the purpose of the "return" statement inside a method? (2 pts) 
+A. It ends the program 
+B. It exits the loop 
+C. It sends a value back to the caller 
+D. It declares a variable
+
+Test II: True or False (10 pts)
+
+Directions: Write TRUE if the statement is correct and FALSE if it is incorrect on the blank before each
+number. Each item is worth 1 point.
+_______ 1. A string in C# is a reference type.
+_______ 2. The "void" return type means a method returns zero.
+_______ 3. An array index in C# starts at 1.
+_______ 4. Encapsulation is one of the four pillars of OOP.
+_______ 5. The "break" statement can be used to exit a loop prematurely.
+_______ 6. Inheritance allows a child class to use the properties and methods of a parent class.
+_______ 7. A constructor must have the same name as the class.
+_______ 8. The "==" operator compares values while ".Equals()" compares references for strings.
+_______ 9. A "for" loop always requires an initialization, condition, and increment.
+_______ 10. In C#, you can have multiple catch blocks for a single try block.
+
+Test III: Fill in the Blanks (10 pts)
+
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026 | Page 2 
+Directions: Fill in each blank with the correct word or phrase to complete the statement. Each correct
+answer is worth 1 point. Spelling must be exact.
+
+1.  The process of hiding implementation details and exposing only necessary parts is called
+_____________________.
+2.  A _____________________ is a blueprint for creating objects in OOP.
+3.  The C# keyword _____________________ is used to create a new instance of a class.
+4.  An if-else-if chain can be replaced with a _____________________ statement for cleaner code.
+5.  The _____________________ loop checks its condition AFTER executing its body at least once.
+6.  In C#, the _____________________ keyword is used to define a method that can be overridden in
+a subclass.
+7.  A method that has the same name as the class and no return type is called a
+_____________________.
+8.  The act of a subclass providing its own implementation of an inherited method is called
+_____________________.
+9.  The _____________________ property of an array returns the total number of elements it
+contains.
+10.  An exception that is not handled will cause the program to _____________________ abnormally.
+
+Test IV: Matching Type (15 pts)
+
+Directions: Match Column A with the correct term/description in Column B. Write only the letter of your
+answer on the space provided. Each correct match is worth 1 point. Each letter in Column B may be used
+only ONCE.
+
+No. Column A Ans. No. Column B
+
+1. Defines the blueprint of an object ___
+__
+A abstract class
+
+2. Prevents inheritance of a class ___
+__
+B enum
+
+3. The ability of objects to take many
+forms
+___
+__
+C char
+
+4. A method without a body (no
+implementation)
+___
+__
+D class
+
+5. Represents a single character value ___
+__
+E abstract method
+
+6. Used to handle runtime errors ___
+__
+F sealed
+
+7. Inheriting from more than one class
+indirectly
+___
+__
+G polymorphism
+
+8. A named constant block of
+statements that returns a value
+___
+__
+H try-catch
+
+9. The operator used to check if an
+object is null-safe in C#
+___
+__
+I method (function)
+
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026 | Page 3 
+10. Converts one data type to another
+explicitly
+___
+__
+J multilevel inheritance
+
+11. A variable that belongs to the class,
+not instances
+___
+__
+K static
+
+12. A class that cannot be instantiated
+directly
+___
+__
+L casting
+
+13. Calling the parent constructor from a
+child class
+___
+__
+M ?.
+
+14. An interface member must be _____
+in its implementing class
+___
+__
+N base()
+
+15. Used to define a group of named
+integer constants
+___
+__
+O implemented (overridden) 
+
+Test V: Hand Tracing / Code Analysis (20 pts)
+
+Directions: Trace the given code and write the exact output on the space provided. Show your trace work
+for partial credit. Each item is worth 4 points.
+
+Item 1.
+
+int x = 5, y = 3;
+int result = x * y + (x - y) * 2;
+Console.WriteLine("Result: " + result);
+for (int i = 1; i <= 3; i++) { 
+Console.WriteLine(i + " x " + x + " = " + (i * x));
+
+Output: _________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________
+Item 2.
+
+string[] fruits = {"Mango", "Banana", "Pineapple"};
+foreach (string fruit in fruits) { 
+if (fruit.Length > 5) 
+Console.WriteLine(fruit + " has more than 5 letters."); 
+else 
+Console.WriteLine(fruit + " is short.");
+
+Output: _________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________
+Item 3.
+
+int n = 10;
+int sum = 0;
+while (n > 0) { 
+sum += n; 
+n -= 3;
+
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026 | Page 4 
+Console.WriteLine("n = " + n + ", sum = " + sum);
+
+Output: _________________________________________________________________
+Item 4.
+
+static int Factorial(int n) { 
+if (n == 0 || n == 1) return 1; 
+return n * Factorial(n - 1);
+
+Console.WriteLine(Factorial(4));
+
+Output: _________________________________________________________________
+Item 5.
+
+class Animal { 
+public virtual void Sound() { Console.WriteLine("..."); }
+
+class Dog : Animal { 
+public override void Sound() { Console.WriteLine("Woof!"); }
+
+Animal a = new Dog();
+a.Sound();
+
+Output: _________________________________________________________________
+
+Test VI: Programming / Problem Solving (15 pts)
+
+Directions: Write a complete and working C# console program for each problem. Follow proper naming
+conventions, indentation, and syntax. Partial credit may be given for correct logic even with minor syntax
+errors. Each item is worth 5 points. 
+
+Problem 1. (5 pts)
+Write a C# program that asks the user to input 5 integers and displays their sum, average, highest
+value, and lowest value. 
+
+Answer / Solution: 
+
+Problem 2. (5 pts)
+Create a class called "Student" with the following attributes: name (string), studentNumber (string),
+and GPA (double). Include a constructor, appropriate getters and setters, and a method called
+
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026 | Page 5 
+DisplayInfo() that prints all student information in a formatted manner. Instantiate the class in the Main
+method and call DisplayInfo(). 
+
+Answer / Solution: 
+
+Problem 3. (5 pts)
+Write a C# program that reads 10 integers from the user, stores them in an array, and uses a method
+called BubbleSort() to sort the array in ascending order. Display the unsorted and sorted arrays. 
+
+Answer / Solution: 
+
+Test VII: Essay / Short Answer (10 pts)
+
+Directions: Answer the following questions in 3 to 5 sentences each. Be concise, clear, and use proper
+technical terminology. Each item is worth 5 points.
+
+1.  (5 pts)
+
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026 | Page 6 
+Explain the concept of Object-Oriented Programming (OOP) and briefly describe each of its four
+fundamental principles: Encapsulation, Abstraction, Inheritance, and Polymorphism. Give a real-world
+analogy for any one of the four principles. 
+
+2.  (5 pts)
+Differentiate between a "for" loop, a "while" loop, and a "do-while" loop in C#. Describe a specific
+scenario or use case where each type of loop is the most appropriate choice, and explain why. 
+
+-- END OF EXAMINATION -- Good luck! --
+"The secret of getting ahead is getting started." -- Mark Twain
+
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026 | Page 7 
+ANSWER KEY
+CITE 201 -- Programming 1 | Midterm Examination | S.Y. 2025-2026
+
+FOR INSTRUCTOR USE ONLY. Do not distribute to students.
+
+Test I: Multiple Choice (20 pts -- 2 pts each)
+
+1.  C -- character -- not a valid C# keyword; use
+'char'
+2.  C -- const
+3.  B -- 1 -- 10 mod 3 = 1
+4.  C -- for loop
+5.  A -- Object-Oriented Programming
+6.  D -- private
+7.  C -- . (dot operator)
+8.  C -- 0
+9.  B -- int[] array;
+10.  C -- It sends a value back to the caller
+
+Test II: True or False (10 pts -- 1 pt each)
+
+1.  TRUE -- string is a reference type
+2.  FALSE -- void means no return value
+3.  FALSE -- index starts at 0
+4.  TRUE
+5.  TRUE
+6.  TRUE
+7.  TRUE
+8.  FALSE -- for strings, == compares values in
+C#
+9.  FALSE -- parts are optional
+10.  TRUE
+
+Test III: Fill in the Blanks (10 pts -- 1 pt each)
+
+1.  Encapsulation
+2.  class
+3.  new
+4.  switch
+5.  do-while
+6.  virtual
+7.  constructor
+8.  method overriding
+9.  Length
+10.  terminate / crash
+
+Test IV: Matching Type (15 pts -- 1 pt each)
+
+1.  D -- class
+2.  F -- sealed
+3.  G -- polymorphism
+4.  E -- abstract method
+5.  C -- char
+6.  H -- try-catch
+7.  J -- multilevel inheritance
+8.  I -- method (function)
+9.  M -- ?.
+10.  L -- casting
+11.  K -- static
+12.  A -- abstract class
+13.  N -- base()
+14.  O -- implemented (overridden)
+15.  B -- enum
+
+Test V: Hand Tracing / Code Analysis (20 pts -- 4 pts each)
+Item 1:
+Result: 21
+1. x 5 = 5
+2. x 5 = 10
+3. x 5 = 15
+Item 2:
+Mango has more than 5 letters.
+Banana has more than 5 letters.
+Pineapple has more than 5 letters.
+
+ANSWER KEY -- CITE 201 Midterm Examination | FOR INSTRUCTOR USE ONLY | Page 8 
+Item 3:
+n = -2, sum = 22
+(Trace: 10+7+4+1 = 22; n ends at -2)
+Item 4:
+[PAGE 24]
+(4! = 4 x 3 x 2 x 1 = 24)
+Item 5:
+Woof!
+(Runtime polymorphism -- overridden method is called)
+
+Test VI: Programming / Problem Solving (15 pts -- 5 pts each)
+
+Grading Rubric per Problem:
+
+Points Criteria Score
+
+2. pts Correct logic and algorithm (even with minor syntax errors) ___ / 2
+
+1. pt Correct class/method structure and proper naming
+conventions
+___ / 1
+
+1. pt Correct input/output handling ___ / 1
+
+1. pt Proper indentation and code readability ___ / 1
+
+Test VII: Essay / Short Answer (10 pts -- 5 pts each)
+
+Points Criteria Score
+
+2. pts Accuracy and completeness of technical content ___ / 2
+
+1. pt Clarity and organization of explanation ___ / 1
+
+1. pt Correct use of technical terms and vocabulary ___ / 1
+
+1. pt Quality of real-world analogy or example given ___ / 1 
+
+Section Max Points Student Score Remarks
+
+I -- Multiple Choice 20 
+
+II -- True or False 10 
+
+III -- Fill in the Blanks 10 
+
+IV -- Matching Type 15 
+
+V -- Hand Tracing 20 
+
+VI -- Programming 15 
+
+VII -- Essay 10 
+
+TOTAL 100 ______ 
+
+-- END OF ANSWER KEY --
+
+ANSWER KEY -- CITE 201 Midterm Examination | FOR INSTRUCTOR USE ONLY | Page 9
