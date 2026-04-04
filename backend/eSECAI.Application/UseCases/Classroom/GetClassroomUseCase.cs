@@ -11,14 +11,16 @@ namespace esecai.Application.UseCases.Classrooms;
 public class GetClassroomUseCase
 {
     private readonly IClassroomRepository _classroomRepo;
+    private readonly IMinioFileService _minioFileService;
 
     /// <summary>
     /// Initializes the GetClassroomUseCase with the classroom repository
     /// </summary>
     /// <param name="repository">Repository for classroom data operations</param>
-    public GetClassroomUseCase(IClassroomRepository classroomRepo)
+    public GetClassroomUseCase(IClassroomRepository classroomRepo, IMinioFileService minioFileService)
     {
         _classroomRepo = classroomRepo;
+        _minioFileService = minioFileService;
     }
 
     /// <summary>
@@ -29,15 +31,23 @@ public class GetClassroomUseCase
     public async Task<IEnumerable<ClassroomDataResponse>> ExecuteGetByCreatorAsync(Guid userId)
     {
         var classrooms = await _classroomRepo.GetClassroomsByCreatorAsync(userId);
-        var responseList = classrooms.Select(c => new ClassroomDataResponse(
-            c.class_id,
-            c.class_name,
-            c.class_description,
-            c.class_banner,
-            c.class_created_at,
-            null
-        ));
-
+        
+        var responseList = new List<ClassroomDataResponse>();
+        foreach (var c in classrooms)
+        {
+            string signedLink = string.IsNullOrWhiteSpace(c.class_banner) 
+                ? c.class_banner 
+                : await _minioFileService.GetSignedLink(c.class_banner);
+                
+            responseList.Add(new ClassroomDataResponse(
+                c.class_id,
+                c.class_name,
+                c.class_description,
+                signedLink,
+                c.class_created_at,
+                null
+            ));
+        }
         return responseList;
     }
 
@@ -64,12 +74,14 @@ public class GetClassroomUseCase
             throw new InvalidOperationException($"The creator data for classroom {classroom.class_id} was not loaded from the database.");
         }
 
+        string signedLink = await _minioFileService.GetSignedLink(classroom.class_banner);
+
         // Build and return response DTO
         return new ClassroomDataResponse(
             classroom.class_id,
             classroom.class_name,
             classroom.class_description,
-            classroom.class_banner,
+            signedLink,
             classroom.class_created_at,
             new UserData(
                 classroom.user.user_id,
