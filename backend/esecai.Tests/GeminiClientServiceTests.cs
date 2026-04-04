@@ -25,10 +25,13 @@ public class GeminiClientServiceTests
     public async Task GenerateAsync_WithExtractedAssessment_ReturnsText()
     {
         // Arrange
+        // Load environment variables from .env file
+        DotNetEnv.Env.TraversePath().Load();
+        
         var options = Options.Create(new GeminiOptions
         {
-            ApiKey = "AIzaSyCgEOCsJPFF5stOJ-6hmaY3FKdNCDDtLiI",
-            Model = "gemini-3.1-flash-lite-preview"
+            ApiKey = Environment.GetEnvironmentVariable("Gemini__ApiKey") ?? "",
+            Model = Environment.GetEnvironmentVariable("Gemini__Model") ?? ""
         });
         
         var loggerMock = new Mock<ILogger<GeminiClientService>>();
